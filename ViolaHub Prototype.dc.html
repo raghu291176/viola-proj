@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics="">
+<link rel="stylesheet" href="_ds/modernist-992deff4-d796-446b-88b3-a448497e9bff/styles.css">
+<script src="_ds/modernist-992deff4-d796-446b-88b3-a448497e9bff/_ds_bundle.js"></script>
+<style>
+:root{--color-bg:#ffffff;--color-surface:#f6f4fb;--color-text:#000000;--color-accent:#8674db;--color-accent-2:#8674db;--color-divider:color-mix(in srgb,#000 32%,transparent);--color-accent-100:#f4f1fc;--color-accent-200:#e6e0f8;--color-accent-300:#d0c6f1;--color-accent-400:#ab9be6;--color-accent-500:#8674db;--color-accent-600:#6a55c4;--color-accent-700:#52409e;--color-accent-800:#3c2f74;--color-accent-900:#28204a;--color-accent-2-100:#f4f1fc;--color-accent-2-200:#e6e0f8;--color-accent-2-300:#d0c6f1;--color-accent-2-400:#ab9be6;--color-accent-2-500:#8674db;--color-accent-2-600:#6a55c4;--color-accent-2-700:#52409e;--color-accent-2-800:#3c2f74;--color-accent-2-900:#28204a}
+.wrap{display:flex;justify-content:center;align-items:flex-start;gap:56px;padding:48px;min-height:100vh}
+.side{width:300px;position:sticky;top:48px}
+.vbtn{display:flex;align-items:baseline;gap:10px;width:100%;padding:10px 12px;background:none;border:1px solid var(--color-divider);font:inherit;font-size:13px;text-align:left;cursor:pointer;margin-bottom:8px}
+.vbtn:hover{background:color-mix(in srgb,var(--color-text) 6%,transparent)}
+.vbtn.on{border-color:var(--color-accent);background:var(--color-accent-100)}
+.vid{font-family:var(--font-heading);font-weight:800;color:var(--color-accent-700);font-size:12px}
+.flownote{font-size:12px;color:var(--color-neutral-700);padding:7px 0;border-bottom:1px solid var(--color-divider);margin:0}
+.phone{width:390px;height:800px;border:2px solid var(--color-text);background:var(--color-bg);display:flex;flex-direction:column;overflow:hidden;position:relative;flex:none}
+.phone.ipad{width:834px;height:1194px}
+.railbrand{display:none}
+.ipad .tabbar{display:flex;justify-content:center;gap:28px;padding:6px 0}
+.ipad .titem{flex-direction:row;align-items:center;gap:9px;padding:12px 18px;font-size:12px}
+.ipad .titem .ic{width:22px;height:22px}
+.ipad .hdr{padding:16px 32px;min-height:60px}
+.homet{display:none}
+.ipad .scr{padding:26px 32px}
+.ipad .ptabs{padding-left:16px}
+.ipad .ptab{flex:none;padding:15px 22px 15px 16px;font-size:12px}
+.ipad .qgrid{display:flex;flex-direction:column;gap:10px}
+.ipad .qcell{flex-direction:row;align-items:center;padding:13px 15px;min-height:0;font-size:14px;gap:10px}
+.ipad .qcell .ic{width:21px;height:21px}
+.ipad .card .thumb{width:56px;height:56px}
+.ipad .card .ministaff{width:30px;height:27px}
+.ipad .card .rtitle{font-size:16px}
+.ipad .card .rsub{font-size:12px}
+.ipad .card{padding:18px;gap:13px}
+.ipad .homeRecentRow .thumb,.ipad .rowbtn .thumb{width:52px;height:52px}
+.ipad .rowbtn .ministaff{width:28px;height:25px}
+.ipad .rowbtn{padding:15px 0}
+.ipad .rowbtn .rtitle{font-size:15px}
+.ipad .rowbtn .rsub{font-size:12px}
+.ipad .cellgrid{grid-template-columns:repeat(4,1fr)}
+.ipad .cell.bb{border-bottom:0}
+.ipad .cell{border-right:1px solid var(--color-divider)}
+.ipad .cell:last-child{border-right:0}
+.ipad .notegrid{grid-template-columns:repeat(6,1fr)}
+.ipad .bpmnum{font-size:88px}
+.ipad .poster{margin:-26px -32px 0;padding:32px 32px}
+.ipad .poster .ph{font-size:40px}
+.ipad .sheet{padding:32px 32px 10px}
+.ipad .toolbar{display:flex;border-top:2px solid var(--color-divider);padding-left:16px}
+.ipad .tool{flex-direction:row;align-items:center;gap:8px;padding:11px 18px 11px 14px;font-size:10px}
+.ipad .actbar{padding:12px 32px}
+.ipad .toast{left:32px;right:auto;width:400px;bottom:84px}
+.hdr{display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:2px solid var(--color-divider);flex:none;min-height:46px}
+.brand{font-family:var(--font-heading);font-weight:800;font-size:14px;letter-spacing:.05em}
+.bdot{color:var(--color-accent)}
+.htitle{font-family:var(--font-heading);font-weight:800;font-size:14px;line-height:1.15}
+.scr{flex:1;overflow-y:auto;padding:13px;scrollbar-width:thin}
+.tabbar{display:grid;grid-template-columns:repeat(5,1fr);border-top:2px solid var(--color-divider);flex:none;background:var(--color-bg);gap:0}
+.titem{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:6px 2px 7px 6px;background:none;border:0;font-family:var(--font-heading);font-weight:600;font-size:8px;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;color:var(--color-neutral-600)}
+.titem:hover{background:color-mix(in srgb,var(--color-text) 6%,transparent)}
+.titem.on{color:var(--color-accent-700);box-shadow:inset 0 2px 0 var(--color-accent)}
+.ic{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ic16{width:16px;height:16px}
+.iconbtn{display:grid;place-items:center;width:34px;height:34px;background:none;border:0;cursor:pointer;color:var(--color-text)}
+.iconbtn:hover{background:color-mix(in srgb,var(--color-text) 7%,transparent)}
+.kickrow{display:flex;align-items:baseline;margin:22px 0 6px}
+.kick{font-family:var(--font-heading);font-weight:800;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700);margin:0}
+.seeall{margin-left:auto;color:var(--color-accent-700);cursor:pointer;background:none;border:0;font-family:var(--font-heading);font-weight:800;font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:0}
+.rowbtn{display:flex;align-items:center;gap:12px;width:100%;padding:12px 0;background:none;border:0;border-bottom:1px solid var(--color-divider);font:inherit;text-align:left;cursor:pointer;color:inherit}
+.rowbtn:hover{background:color-mix(in srgb,var(--color-text) 5%,transparent)}
+.rtitle{font-family:var(--font-heading);font-weight:600;font-size:12px;line-height:1.25}
+.rsub{font-size:10px;color:var(--color-neutral-600)}
+.mla{margin-left:auto}
+.chev{color:var(--color-neutral-500)}
+.thumb{width:38px;height:38px;flex:none;display:grid;place-items:center;background:var(--color-surface);border:1px solid var(--color-divider)}
+.ministaff{width:20px;height:18px;background:repeating-linear-gradient(to bottom,var(--color-neutral-600) 0 1px,transparent 1px 5px)}
+.qgrid{display:flex;flex-direction:column;gap:6px}
+.qcell{display:flex;flex-direction:row;align-items:center;gap:8px;padding:9px 10px;border:1px solid var(--color-divider);background:none;font-family:var(--font-heading);font-weight:600;font-size:11px;cursor:pointer;color:inherit}
+.qcell .ic{width:16px;height:16px}
+.qcell:hover{border-color:var(--color-accent);color:var(--color-accent-700)}
+.poster{background:var(--color-accent);color:#fff;padding:28px 16px;margin:-16px -16px 0}
+.poster .ph{font-size:34px;letter-spacing:-.02em;line-height:1.04;margin:0 0 10px;color:#fff}
+.poster .pm{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin:0;opacity:.92}
+.cellgrid{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--color-divider);margin-top:10px}
+.cell{padding:12px;display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-height:128px}
+.cell.br{border-right:1px solid var(--color-divider)}
+.cell.bb{border-bottom:1px solid var(--color-divider)}
+.bignum{font-family:var(--font-heading);font-weight:800;font-size:26px;line-height:1;letter-spacing:-.02em}
+.bpmnum{font-family:var(--font-heading);font-weight:800;font-size:64px;line-height:.95;letter-spacing:-.03em}
+.slider{width:100%;accent-color:var(--color-accent);height:22px;margin:14px 0 4px}
+.dots{display:flex;gap:8px;margin:10px 0 4px}
+.dot2{width:14px;height:14px;border:1.5px solid var(--color-neutral-500)}
+.dot2.acc{border-color:var(--color-text)}
+.dot2.hit{background:var(--color-accent);border-color:var(--color-accent)}
+.setrow{display:flex;align-items:center;gap:8px;width:100%;padding:13px 0;background:none;border:0;border-bottom:1px solid var(--color-divider);font:inherit;font-size:13px;cursor:pointer;color:inherit;text-align:left}
+.setrow:hover{background:color-mix(in srgb,var(--color-text) 5%,transparent)}
+.setval{margin-left:auto;color:var(--color-neutral-700);font-family:var(--font-heading);font-weight:600;font-size:12px}
+.ptabs{display:flex;border-bottom:2px solid var(--color-divider);flex:none}
+.ptab{flex:1;padding:11px 4px 11px 12px;text-align:left;background:none;border:0;font-family:var(--font-heading);font-weight:600;font-size:10px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;color:var(--color-neutral-600)}
+.ptab:hover{color:var(--color-text)}
+.ptab.on{color:var(--color-accent-700);box-shadow:inset 0 -2px 0 var(--color-accent)}
+.sheet{position:relative;padding:30px 16px 10px;cursor:crosshair}
+.sys{height:41px;background:repeating-linear-gradient(to bottom,var(--color-neutral-800) 0 1px,transparent 1px 10px);position:relative;margin-bottom:34px}
+.msr{position:absolute;top:-15px;left:0;font-size:9px;color:var(--color-neutral-600)}
+.mark{position:absolute;transform:translate(-50%,-50%);color:var(--color-accent-700);font-family:var(--font-heading);font-weight:800;font-size:13px;pointer-events:none}
+.ink{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.ovpanel{display:flex;align-items:center;gap:10px;padding:8px 16px;border-bottom:1px solid var(--color-divider);background:var(--color-surface);flex:none}
+.ovbpm{font-family:var(--font-heading);font-weight:800;font-size:20px}
+.iconbtn.on{color:var(--color-accent-700);box-shadow:inset 0 -2px 0 var(--color-accent)}
+.ovbar{position:relative;height:24px;width:80px;border:1px solid var(--color-divider);background:var(--color-bg)}
+.ovmid{position:absolute;left:50%;top:0;bottom:0;width:2px;background:var(--color-divider)}
+.ovneedle{position:absolute;top:0;bottom:0;width:2px;background:var(--color-accent);transition:left .35s}
+.toolbar{display:grid;grid-template-columns:repeat(4,1fr);border-top:2px solid var(--color-divider);flex:none}
+.tool{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:8px 2px 8px 10px;background:none;border:0;font-size:8.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;font-family:var(--font-heading);cursor:pointer;color:var(--color-neutral-600)}
+.tool:hover{color:var(--color-text)}
+.tool.on{color:var(--color-accent-700);box-shadow:inset 0 2px 0 var(--color-accent)}
+.actbar{display:flex;gap:8px;padding:10px 16px;border-top:1px solid var(--color-divider);flex:none}
+.avatar{width:52px;height:52px;flex:none;display:grid;place-items:center;background:var(--color-accent-200);color:var(--color-accent-800);font-family:var(--font-heading);font-weight:800;font-size:17px}
+.avatar.sm{width:40px;height:40px;font-size:13px}
+.stars{color:var(--color-accent-700);font-size:10px;letter-spacing:2px}
+.banner{background:var(--color-surface);padding:10px 12px;font-size:12px;margin-top:16px}
+.wave{height:40px;margin:14px 0;background:repeating-linear-gradient(to right,var(--color-accent) 0 2px,transparent 2px 6px)}
+.wave.short{height:18px;margin:0 0 14px;opacity:.45}
+.rdot{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--color-divider);flex:none}
+.chk{width:16px;height:16px;border:1.5px solid var(--color-divider);margin-left:auto;flex:none}
+.chk.on{background:var(--color-accent);border-color:var(--color-accent);box-shadow:inset 0 0 0 3px var(--color-bg)}
+.rdot.on{border-color:var(--color-accent);background:var(--color-accent);box-shadow:inset 0 0 0 3px var(--color-bg)}
+.gauge{position:relative;width:300px;height:160px;margin:18px auto 0;overflow:hidden}
+.garc{position:absolute;inset:0 0 -140px;border:1px solid var(--color-divider);border-radius:50%}
+.gtick{position:absolute;left:50%;bottom:10px;width:2px;height:150px;transform-origin:50% 100%;background:none}
+.gtick i{display:block;width:2px;height:10px;background:var(--color-neutral-500)}
+.gtick.big i{height:16px;background:var(--color-text)}
+.needle{position:absolute;left:50%;bottom:10px;width:2px;height:132px;margin-left:-1px;transform-origin:50% 100%;background:var(--color-accent);transition:transform .35s}
+.npivot{position:absolute;left:50%;bottom:2px;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:var(--color-text)}
+.glab{position:absolute;bottom:0;font-size:10px;color:var(--color-neutral-600)}
+.notegrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.notebtn{padding:10px 0 10px 10px;border:1px solid var(--color-divider);background:none;font-family:var(--font-heading);font-weight:600;font-size:13px;cursor:pointer;text-align:left;color:inherit}
+.notebtn:hover{border-color:var(--color-accent)}
+.notebtn.on{background:var(--color-accent);color:#fff;border-color:var(--color-accent)}
+.bignote{font-family:var(--font-heading);font-weight:800;font-size:84px;line-height:1;letter-spacing:-.03em}
+.videobox{position:relative;height:180px;background:var(--color-neutral-800);display:flex;align-items:flex-end;justify-content:center;padding:14px;color:#fff;cursor:pointer;margin-bottom:6px}
+.videobox svg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);stroke:#fff}
+.optwrap{display:flex;flex-wrap:wrap;gap:8px;padding:10px 0;border-bottom:1px solid var(--color-divider);background:var(--color-surface);padding-left:10px;padding-right:10px}
+.optbtn{padding:8px 14px;border:1px solid var(--color-divider);background:var(--color-bg);font-family:var(--font-heading);font-weight:600;font-size:12px;cursor:pointer;color:inherit;text-align:left}
+.optbtn:hover{border-color:var(--color-accent)}
+.optbtn.on{background:var(--color-accent);color:#fff;border-color:var(--color-accent)}
+.toast{position:absolute;left:16px;right:16px;bottom:74px;background:var(--color-text);color:var(--color-bg);padding:10px 14px;font-size:12px;font-weight:600;z-index:9}
+.prog{height:8px;background:var(--color-neutral-300);position:relative;width:100%}
+.prog i{position:absolute;left:0;top:0;bottom:0;background:var(--color-accent)}
+a:hover{color:var(--color-accent-600)}
+</style>
+</helmet>
+<div class="wrap" style="position: absolute; left: -20px; top: -1px">
+<aside class="side">
+<h6 class="card-kicker" style="color:var(--color-accent-700)">Interactive prototype</h6>
+<h2 class="m0">ViolaHub</h2>
+<p class="fs13 text-muted mt8">A practice companion for violists. Everything is tappable — tabs, metronome, drone, sheet annotations, flows.</p>
+<div class="hr"></div>
+<p class="kick mb8">Device</p>
+<button class="vbtn {{cDevP}}" onClick="{{setDevP}}"><span class="vid">P</span><span><span class="fw6">Phone</span> — 390 × 800, bottom tab bar</span></button>
+<button class="vbtn {{cDevI}}" onClick="{{setDevI}}"><span class="vid">I</span><span><span class="fw6">iPad</span> — 11" iPad, 834 × 1194 portrait, bottom tab bar</span></button>
+<div class="hr"></div>
+<p class="kick mb8">Home variations</p>
+<button class="vbtn {{cVa}}" onClick="{{setVa}}"><span class="vid">1A</span><span><span class="fw6">Continue-first</span> — faithful to the reference layout</span></button>
+<button class="vbtn {{cVb}}" onClick="{{setVb}}"><span class="vid">1B</span><span><span class="fw6">Poster hero</span> — purple statement field, streak up top</span></button>
+<button class="vbtn {{cVc}}" onClick="{{setVc}}"><span class="vid">1C</span><span><span class="fw6">Modular grid</span> — four ruled cells, dashboard density</span></button>
+<div class="hr"></div>
+<p class="kick mb8">Try these flows</p>
+<p class="flownote">Home → Metronome runs a real ticking metronome — sound on</p>
+<p class="flownote">Practice → Drone plays a sustained pitch</p>
+<p class="flownote">Music → Bach opens the sheet viewer; pick a tool, tap the staff to annotate</p>
+<p class="flownote">Music → AI transcription → Transcribe</p>
+</aside>
+<div class="phone {{devCls}}" data-screen-label="Device">
+<sc-if value="{{sHome}}" hint-placeholder-val="{{true}}"><div class="col f1 ohide" data-screen-label="Home">
+<div class="hdr jb"><span class="brand">VIOLAHUB<span class="bdot">.</span></span><span class="htitle homet">Home</span><button class="iconbtn" onClick="{{tBell}}"><svg class="ic" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></button></div><div class="scr" style="width: 826px; height: 1071px">
+<h3 class="m0" style="font-size:24px">Good morning, Emily.</h3><p class="rsub mt8">Let's make beautiful music today.</p>
+<div class="kickrow"><p class="kick">Continue practicing</p></div>
+<div class="card elev-sm"><div class="fx ac gap12"><div class="thumb"><div class="ministaff"></div></div><div class="f1"><div class="rtitle">Bach: Suite No. 1 in G Major</div><div class="rsub">I. Allemande · 62% through</div></div></div><div class="prog"><i style="width:62%"></i></div><button class="btn btn-primary btn-block" onClick="{{openSheet}}">Resume</button></div>
+<div class="kickrow"><p class="kick">Quick access</p></div>
+<div class="qgrid">
+<button class="qcell" onClick="{{goMetH}}"><svg class="ic" viewBox="0 0 24 24"><line x1="10" y1="2" x2="14" y2="2"></line><line x1="12" y1="14" x2="15" y2="11"></line><circle cx="12" cy="14" r="8"></circle></svg>Metronome</button>
+<button class="qcell" onClick="{{goTunH}}"><svg class="ic" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line></svg>Tuner</button>
+<button class="qcell" onClick="{{goDroH}}"><svg class="ic" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>Drone</button>
+<button class="qcell" onClick="{{goSrH}}"><svg class="ic" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>Sight reading</button>
+</div>
+<div class="kickrow"><p class="kick">Recent music</p><button class="seeall" onClick="{{goMusic}}">See all</button></div>
+<sc-for list="{{homeRecent}}" as="r" hint-placeholder-count="2"><button class="rowbtn" onClick="{{r.open}}"><div class="thumb"><div class="ministaff"></div></div><div class="f1"><div class="rtitle">{{r.t}}</div><div class="rsub">{{r.s}}</div></div><svg class="ic ic16 chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button></sc-for>
+</div>
+<sc-if value="{{hvA}}" hint-placeholder-val="{{true}}"></sc-if>
+<sc-if value="{{hvB}}" hint-placeholder-val="{{false}}"><div class="scr">
+<div class="poster"><p class="pm">Tuesday · 7:40 AM</p><h2 class="ph">Good morning, Emily.</h2><p class="pm">6-day streak · 4h 20m this week</p></div>
+<button class="rowbtn" onClick="{{openSheet}}" style="padding-top:18px"><div class="thumb"><div class="ministaff"></div></div><div class="f1"><div class="kick" style="color:var(--color-accent-700)">Continue practicing</div><div class="rtitle">Bach: Suite No. 1 in G Major</div><div class="rsub">I. Allemande · 62% through</div></div><svg class="ic ic16 chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+<div class="kickrow"><p class="kick">Tools</p></div>
+<button class="rowbtn" onClick="{{goMetH}}"><span class="rtitle f1">Metronome</span><span class="rsub">{{bpm}} BPM</span></button>
+<button class="rowbtn" onClick="{{goTunH}}"><span class="rtitle f1">Tuner</span><span class="rsub">A4 · 440 Hz</span></button>
+<button class="rowbtn" onClick="{{goDroH}}"><span class="rtitle f1">Drone</span><span class="rsub">{{droneNote}}</span></button>
+<button class="rowbtn" onClick="{{goSrH}}"><span class="rtitle f1">Sight reading</span><span class="rsub">Level 2</span></button>
+<div class="kickrow"><p class="kick">Recent music</p><button class="seeall" onClick="{{goMusic}}">See all</button></div>
+<sc-for list="{{homeRecent}}" as="r" hint-placeholder-count="2"><button class="rowbtn" onClick="{{r.open}}"><div class="f1"><div class="rtitle">{{r.t}}</div><div class="rsub">{{r.s}}</div></div><svg class="ic ic16 chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button></sc-for>
+</div></sc-if>
+<sc-if value="{{hvC}}" hint-placeholder-val="{{false}}"><div class="scr">
+<h3 class="m0" style="font-size:24px">Good morning, Emily.</h3><p class="rsub mt8">Tuesday · week 24</p>
+<div class="cellgrid">
+<div class="cell br bb"><p class="kick">Continue</p><div class="rtitle f1">Bach: Suite No. 1 in G Major</div><div class="rsub">I. Allemande</div><button class="btn btn-primary" onClick="{{openSheet}}">Resume</button></div>
+<div class="cell bb"><p class="kick">This week</p><div class="bignum">4h 20m</div><div class="rsub">6-day streak</div><div class="prog mt8"><i style="width:72%"></i></div><div class="rsub">72% of 6h goal</div></div>
+<div class="cell br"><p class="kick">Tools</p><button class="btn btn-ghost" onClick="{{goMetH}}">Metronome</button><button class="btn btn-ghost" onClick="{{goTunH}}">Tuner</button><button class="btn btn-ghost" onClick="{{goDroH}}">Drone</button></div>
+<div class="cell"><p class="kick">Recent</p><sc-for list="{{homeRecent}}" as="r" hint-placeholder-count="2"><button class="btn btn-ghost" style="color:inherit;text-align:left" onClick="{{r.open}}">{{r.short}}</button></sc-for></div>
+</div>
+<div class="kickrow"><p class="kick">Up next in Learn</p></div>
+<button class="rowbtn" onClick="{{goLearn}}"><div class="f1"><div class="rtitle">Vibrato Mastery · Lesson 4</div><div class="rsub">Beautiful, expressive sound</div></div><svg class="ic ic16 chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+</div></sc-if>
+</div></sc-if>
+<sc-if value="{{sMusic}}" hint-placeholder-val="{{false}}"><div class="col f1 ohide" data-screen-label="Music">
+<div class="hdr"><span class="htitle">Music</span></div>
+<div class="scr">
+<input class="input" placeholder="Search music…" value="{{q}}" onChange="{{setQ}}">
+<div class="kickrow"><p class="kick">Find music</p></div>
+<button class="rowbtn" onClick="{{openComm}}"><svg class="ic" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg><div class="f1"><div class="rtitle">Community music</div><div class="rsub">Free · sheet music made by violists, for violists</div></div><svg class="ic ic16 chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+<button class="rowbtn" onClick="{{openPro}}"><svg class="ic" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg><div class="f1"><div class="rtitle">Professional music</div><div class="rsub">Paid · from publishers, purchased via Amazon</div></div><svg class="ic ic16 chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+<button class="rowbtn" onClick="{{openTrans}}"><svg class="ic" viewBox="0 0 24 24"><line x1="4" y1="9" x2="4" y2="15"></line><line x1="8" y1="5" x2="8" y2="19"></line><line x1="12" y1="9" x2="12" y2="15"></line><line x1="16" y1="3" x2="16" y2="21"></line><line x1="20" y1="9" x2="20" y2="15"></line></svg><div class="f1"><div class="rtitle">AI transcription</div><div class="rsub">Subscribers · turn any song or audio into sheet music</div></div><svg class="ic ic16 chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+<button class="rowbtn" onClick="{{tUpload}}"><svg class="ic" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg><div class="f1"><div class="rtitle">Upload your own</div><div class="rsub">Import PDF or scans</div></div><svg class="ic ic16 chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+<div class="kickrow"><p class="kick">Recently opened</p></div>
+<sc-for list="{{musicList}}" as="p" hint-placeholder-count="3"><button class="rowbtn" onClick="{{p.open}}"><div class="thumb"><div class="ministaff"></div></div><div class="f1"><div class="rtitle">{{p.t}}</div><div class="rsub">{{p.s}}</div></div><span class="stars">{{p.star}}</span><svg class="ic ic16 chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button></sc-for>
+<sc-if value="{{noResults}}" hint-placeholder-val="{{false}}"><p class="rsub mt12">No pieces match "{{q}}".</p></sc-if>
+</div></div></sc-if>
+<sc-if value="{{sBrowse}}" hint-placeholder-val="{{false}}"><div class="col f1 ohide" data-screen-label="Browse music">
+<div class="hdr"><button class="iconbtn" onClick="{{back}}"><svg class="ic" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg></button><div class="f1"><div class="htitle" style="font-size:14px">{{browseT}}</div><div class="rsub">{{browseS}}</div></div></div>
+<div class="scr">
+<sc-for list="{{browseList}}" as="b" hint-placeholder-count="4"><div class="rowbtn" style="cursor:default"><div class="thumb"><div class="ministaff"></div></div><div class="f1"><div class="rtitle">{{b.t}}</div><div class="rsub">{{b.s}}</div></div><button class="btn {{b.cls}}" onClick="{{b.act}}">{{b.cta}}</button></div></sc-for>
+<sc-if value="{{isPro}}" hint-placeholder-val="{{false}}"><div class="banner">Physical editions ship from Amazon. Digital editions are also paid through Amazon and open in the app after purchase.</div></sc-if>
+<sc-if value="{{isComm}}" hint-placeholder-val="{{false}}"><div class="banner">Community music is free. Anyone can publish — but only music for violists.</div><button class="btn btn-secondary btn-block" onClick="{{tPub}}">Publish your own piece</button></sc-if>
+</div></div></sc-if>
+<sc-if value="{{sSheet}}" hint-placeholder-val="{{false}}"><div class="col f1 ohide" data-screen-label="Sheet viewer">
+<div class="hdr"><button class="iconbtn" onClick="{{back}}"><svg class="ic" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg></button><div class="f1"><div class="htitle" style="font-size:14px">{{pieceT}}</div><div class="rsub">{{pieceS}}</div></div><button class="iconbtn {{cOvMet}}" onClick="{{ovMet}}"><svg class="ic" viewBox="0 0 24 24"><line x1="10" y1="2" x2="14" y2="2"></line><line x1="12" y1="14" x2="15" y2="11"></line><circle cx="12" cy="14" r="8"></circle></svg></button><button class="iconbtn {{cOvTun}}" onClick="{{ovTun}}"><svg class="ic" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line></svg></button><button class="iconbtn" onClick="{{tBook}}"><svg class="ic" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg></button></div>
+<sc-if value="{{ovIsMet}}" hint-placeholder-val="{{false}}"><div class="ovpanel"><span class="kick">Metronome</span><button class="btn btn-secondary btn-icon" onClick="{{bpmDown}}"><svg class="ic ic16" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line></svg></button><span class="ovbpm">{{bpm}}</span><button class="btn btn-secondary btn-icon" onClick="{{bpmUp}}"><svg class="ic ic16" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button><div class="dots" style="margin:0"><sc-for list="{{beatDots}}" as="d" hint-placeholder-count="4"><span class="{{d.cls}}"></span></sc-for></div><button class="btn btn-primary mla" onClick="{{toggleRun}}">{{runLabel}}</button></div></sc-if>
+<sc-if value="{{ovIsTun}}" hint-placeholder-val="{{false}}"><div class="ovpanel"><span class="kick">Tuner</span><span class="ovbpm">{{tunerNote}}</span><span class="rsub">{{centsLabel}}</span><div class="ovbar"><div class="ovmid"></div><div class="ovneedle" style="left:{{ovNeedleLeft}}"></div></div><button class="btn btn-primary mla" onClick="{{toggleListen}}">{{listenLabel}}</button></div></sc-if>
+<div class="scr" style="padding:0">
+<div class="fx ac gap8" style="padding:12px 16px 0"><p class="rsub m0 f1">Pick a tool below, tap the staff to mark up — free.</p><button class="btn btn-ghost" onClick="{{aiMark}}">{{aiMarkLabel}}</button></div>
+<div class="sheet" onClick="{{addMark}}" onPointerDown="{{penDown}}" onPointerMove="{{penMove}}" onPointerUp="{{penUp}}" onPointerLeave="{{penUp}}" style="touch-action:none">
+<div class="sys"><span class="msr">1</span></div>
+<div class="sys"><span class="msr">5</span></div>
+<div class="sys"><span class="msr">9</span></div>
+<div class="sys"><span class="msr">13</span></div>
+<div class="sys" style="margin-bottom:10px"><span class="msr">17</span></div>
+<sc-for list="{{marks}}" as="m" hint-placeholder-count="0"><span class="mark" style="left:{{m.x}}px;top:{{m.y}}px">{{m.sym}}</span></sc-for>
+<svg class="ink"><sc-for list="{{strokes}}" as="k" hint-placeholder-count="0"><polyline points="{{k.pts}}" fill="none" stroke="var(--color-accent-700)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></polyline></sc-for></svg>
+</div>
+</div>
+<sc-if value="{{showBowOpts}}" hint-placeholder-val="{{false}}"><div class="fx ac gap8" style="padding:8px 16px;border-top:1px solid var(--color-divider)"><span class="kick">Bow direction</span><button class="btn {{cBowUp}}" onClick="{{bowUp}}">∨ Up bow</button><button class="btn {{cBowDn}}" onClick="{{bowDn}}">∏ Down bow</button></div></sc-if>
+<sc-if value="{{showFingOpts}}" hint-placeholder-val="{{false}}"><div class="fx ac gap8" style="padding:8px 16px;border-top:1px solid var(--color-divider)"><span class="kick">Finger</span><sc-for list="{{fingOpts}}" as="f" hint-placeholder-count="5"><button class="btn btn-icon {{f.cls}}" onClick="{{f.pick}}">{{f.n}}</button></sc-for></div></sc-if>
+<div class="toolbar">
+<button class="tool {{cSel}}" onClick="{{toolSel}}"><svg class="ic ic16" viewBox="0 0 24 24"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"></path></svg>Select</button>
+<button class="tool {{cFing}}" onClick="{{toolFing}}"><svg class="ic ic16" viewBox="0 0 24 24"><path d="M18 11V6a2 2 0 0 0-4 0v5"></path><path d="M14 10V4a2 2 0 0 0-4 0v2"></path><path d="M10 10.5V6a2 2 0 0 0-4 0v8"></path><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path></svg>Fingerings</button>
+<button class="tool {{cBow}}" onClick="{{toolBow}}"><svg class="ic ic16" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>Bowings</button>
+<button class="tool {{cPen}}" onClick="{{toolPen}}"><svg class="ic ic16" viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>Annotate</button>
+</div>
+<div class="actbar"><button class="btn btn-secondary" onClick="{{undoMark}}">Undo</button><button class="btn btn-primary f1" onClick="{{saveMarks}}">Save</button><button class="btn btn-ghost" onClick="{{tShare}}">Share</button></div>
+</div></sc-if>
+<sc-if value="{{sPractice}}" hint-placeholder-val="{{false}}"><div class="col f1 ohide" data-screen-label="Practice">
+<div class="hdr"><span class="htitle">Practice</span></div>
+<div class="ptabs">
+<button class="ptab {{cMet}}" onClick="{{goMet}}">Metronome</button>
+<button class="ptab {{cTun}}" onClick="{{goTun}}">Tuner</button>
+<button class="ptab {{cDro}}" onClick="{{goDro}}">Drone</button>
+<button class="ptab {{cSr}}" onClick="{{goSr}}">Sight reading</button>
+</div>
+<sc-if value="{{pMet}}" hint-placeholder-val="{{true}}"><div class="scr">
+<p class="kick" style="margin-top:6px">Tempo · {{tempoName}}</p>
+<div class="fx ac jb mt12">
+<button class="btn btn-secondary btn-icon" onClick="{{bpmDown}}"><svg class="ic ic16" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+<div class="tc"><div class="bpmnum">{{bpm}}</div><div class="kick tc" style="margin-top:4px">BPM</div></div>
+<button class="btn btn-secondary btn-icon" onClick="{{bpmUp}}"><svg class="ic ic16" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+</div>
+<input class="slider" type="range" min="30" max="240" value="{{bpm}}" onChange="{{setBpm}}">
+<div class="dots"><sc-for list="{{beatDots}}" as="d" hint-placeholder-count="4"><span class="{{d.cls}}"></span></sc-for></div>
+<button class="btn btn-primary btn-block" onClick="{{toggleRun}}">{{runLabel}}</button>
+<div class="mt16">
+<button class="setrow" onClick="{{menuTs}}">Time signature<span class="setval">{{ts}}</span><svg class="ic ic16 chev" style="transform:{{rotTs}}" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+<sc-if value="{{openTs}}" hint-placeholder-val="{{false}}"><div class="optwrap"><sc-for list="{{tsOpts}}" as="o" hint-placeholder-count="4"><button class="optbtn {{o.on}}" onClick="{{o.pick}}">{{o.name}}</button></sc-for></div></sc-if>
+<button class="setrow" onClick="{{menuAcc}}">Beat accent<span class="setval">{{accent}}</span><svg class="ic ic16 chev" style="transform:{{rotAcc}}" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+<sc-if value="{{openAcc}}" hint-placeholder-val="{{false}}"><div class="optwrap"><sc-for list="{{accOpts}}" as="o" hint-placeholder-count="4"><button class="optbtn {{o.on}}" onClick="{{o.pick}}">{{o.name}}</button></sc-for></div></sc-if>
+<button class="setrow" onClick="{{menuSound}}">Sound<span class="setval">{{sound}}</span><svg class="ic ic16 chev" style="transform:{{rotSound}}" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+<sc-if value="{{openSound}}" hint-placeholder-val="{{false}}"><div class="optwrap"><sc-for list="{{soundOpts}}" as="o" hint-placeholder-count="3"><button class="optbtn {{o.on}}" onClick="{{o.pick}}">{{o.name}}</button></sc-for></div></sc-if>
+</div>
+</div></sc-if>
+<sc-if value="{{pTun}}" hint-placeholder-val="{{false}}"><div class="scr">
+<p class="kick" style="margin-top:6px">Chromatic tuner · A = 440 Hz</p>
+<div class="gauge">
+<div class="garc"></div>
+<div class="gtick big" style="transform:rotate(-60deg)"><i></i></div>
+<div class="gtick" style="transform:rotate(-45deg)"><i></i></div>
+<div class="gtick" style="transform:rotate(-30deg)"><i></i></div>
+<div class="gtick" style="transform:rotate(-15deg)"><i></i></div>
+<div class="gtick big" style="transform:rotate(0deg)"><i></i></div>
+<div class="gtick" style="transform:rotate(15deg)"><i></i></div>
+<div class="gtick" style="transform:rotate(30deg)"><i></i></div>
+<div class="gtick" style="transform:rotate(45deg)"><i></i></div>
+<div class="gtick big" style="transform:rotate(60deg)"><i></i></div>
+<div class="needle" style="transform:{{needleRot}}"></div>
+<div class="npivot"></div>
+<span class="glab" style="left:8px">−50</span>
+<span class="glab" style="right:8px">+50</span>
+</div>
+<sc-if value="{{heardNote}}" hint-placeholder-val="{{false}}"><div class="tc mt8"><span class="bignote">{{tunerNote}}</span><span class="rsub" style="margin-left:8px">{{centsLabel}}</span></div></sc-if>
+<sc-if value="{{notHeard}}" hint-placeholder-val="{{true}}"><p class="rsub tc mt16">{{noPitchLabel}}</p></sc-if>
+<button class="btn btn-primary btn-block mt16" onClick="{{toggleListen}}">{{listenLabel}}</button>
+<p class="rsub mt12">{{tunerHint}}</p>
+</div></sc-if>
+<sc-if value="{{pDro}}" hint-placeholder-val="{{false}}"><div class="scr">
+<p class="kick" style="margin-top:6px">Drone pitch</p><div class="seg w100 mt8" style="justify-content:center"><sc-for list="{{octOpts}}" as="o" hint-placeholder-count="3"><label class="seg-opt f1 tc" style="justify-content:center"><input type="radio" checked="{{o.on}}" onChange="{{o.pick}}">{{o.name}}</label></sc-for></div>
+<div class="notegrid"><sc-for list="{{droneNotes}}" as="n" hint-placeholder-count="12"><button class="{{n.cls}}" onClick="{{n.pick}}">{{n.name}}</button></sc-for></div>
+<button class="btn btn-primary btn-block" onClick="{{toggleDrone}}">{{droneLabel}}</button>
+<p class="rsub mt12">A sustained reference pitch for intonation work. The C–G–D–A strings of the viola are a good place to start.</p>
+</div></sc-if>
+<sc-if value="{{pSr}}" hint-placeholder-val="{{false}}"><div class="scr">
+<p class="kick" style="margin-top:6px">Sight reading · exercise {{srNum}}</p>
+<div class="sheet" style="padding:26px 0 0;cursor:default"><div class="sys" style="margin-bottom:12px"><span class="msr">{{srKey}} · {{srTs}} · alto clef</span></div><sc-if value="{{srTreble}}" hint-placeholder-val="{{false}}"><div class="sys" style="margin-bottom:12px"><span class="msr">treble clef part</span></div></sc-if></div>
+<button class="setrow" onClick="{{menuKey}}">Key<span class="setval">{{srKey}}</span><svg class="ic ic16 chev" style="transform:{{rotKey}}" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+<sc-if value="{{openKey}}" hint-placeholder-val="{{false}}"><div class="optwrap"><sc-for list="{{keyOpts}}" as="o" hint-placeholder-count="7"><button class="optbtn {{o.on}}" onClick="{{o.pick}}">{{o.name}}</button></sc-for></div></sc-if>
+<button class="setrow" onClick="{{menuSrTs}}">Time signature<span class="setval">{{srTs}}</span><svg class="ic ic16 chev" style="transform:{{rotSrTs}}" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+<sc-if value="{{openSrTs}}" hint-placeholder-val="{{false}}"><div class="optwrap"><sc-for list="{{srTsOpts}}" as="o" hint-placeholder-count="8"><button class="optbtn {{o.on}}" onClick="{{o.pick}}">{{o.name}}</button></sc-for></div></sc-if>
+<button class="setrow" onClick="{{menuNv}}">Note types<span class="setval">{{srNv}}</span><svg class="ic ic16 chev" style="transform:{{rotNv}}" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+<sc-if value="{{openNv}}" hint-placeholder-val="{{false}}"><div class="optwrap"><sc-for list="{{nvOpts}}" as="o" hint-placeholder-count="6"><button class="optbtn {{o.on}}" onClick="{{o.pick}}">{{o.name}}</button></sc-for><p class="rsub w100 m0" style="padding-top:2px">Select all that apply — the excerpt draws from your selection.</p></div></sc-if>
+<div class="kickrow"><p class="kick">Add to the exercise</p></div>
+<sc-for list="{{srOpts}}" as="o" hint-placeholder-count="4"><button class="setrow" onClick="{{o.toggle}}">{{o.name}}<span class="{{o.cls}}"></span></button></sc-for>
+<button class="btn btn-primary btn-block mt16" onClick="{{newExercise}}">New exercise</button>
+</div></sc-if>
+</div></sc-if>
+<sc-if value="{{sLearn}}" hint-placeholder-val="{{false}}"><div class="col f1 ohide" data-screen-label="Learn">
+<div class="hdr"><span class="htitle">Learn</span></div>
+<div class="ptabs">
+<button class="ptab {{cCrs}}" onClick="{{goCrs}}">Courses</button>
+<button class="ptab {{cPrg}}" onClick="{{goPrg}}">My progress</button>
+</div>
+<sc-if value="{{lCrs}}" hint-placeholder-val="{{true}}"><div class="scr">
+<sc-if value="{{isFree}}" hint-placeholder-val="{{true}}"><div class="banner" style="margin-top:12px">Courses are included with a ViolaHub subscription.<button class="btn btn-primary btn-block" onClick="{{upgrade}}">Subscribe to unlock</button></div></sc-if>
+<div class="kickrow" style="margin-top:6px"><p class="kick">Featured courses{{crsIncl}}</p></div>
+<sc-for list="{{courses}}" as="c" hint-placeholder-count="4"><button class="rowbtn" onClick="{{c.open}}"><div class="thumb"><svg class="ic" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg></div><div class="f1"><div class="rtitle">{{c.t}}</div><div class="rsub">{{c.s}}</div></div><sc-if value="{{isFree}}" hint-placeholder-val="{{true}}"><svg class="ic ic16 chev" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="0"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></sc-if><svg class="ic ic16 chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button></sc-for>
+</div></sc-if>
+<sc-if value="{{lPrg}}" hint-placeholder-val="{{false}}"><div class="scr">
+<p class="kick" style="margin-top:6px">This week</p>
+<div class="bignum mt8">4h 20m</div><div class="rsub">of a 6h goal</div>
+<div class="prog mt8"><i style="width:72%"></i></div>
+<div class="mt16">
+<div class="setrow" style="cursor:default">Practice streak<span class="setval">6 days</span></div>
+<div class="setrow" style="cursor:default">Courses in progress<span class="setval">2</span></div>
+<div class="setrow" style="cursor:default">Pieces learned<span class="setval">14</span></div>
+</div>
+</div></sc-if>
+</div></sc-if>
+<sc-if value="{{sCourse}}" hint-placeholder-val="{{false}}"><div class="col f1 ohide" data-screen-label="Course">
+<div class="hdr"><button class="iconbtn" onClick="{{back}}"><svg class="ic" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg></button><div class="f1"><div class="htitle" style="font-size:14px">{{courseT}}</div><div class="rsub">{{courseS}}</div></div></div>
+<div class="scr">
+<sc-for list="{{lessons}}" as="l" hint-placeholder-count="4"><button class="rowbtn" onClick="{{l.open}}"><div class="thumb">{{l.mark}}</div><div class="f1"><div class="rtitle">{{l.t}}</div><div class="rsub">{{l.d}} · {{l.checkKind}}</div></div><svg class="ic ic16 chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button></sc-for>
+</div></div></sc-if>
+<sc-if value="{{sLesson}}" hint-placeholder-val="{{false}}"><div class="col f1 ohide" data-screen-label="Lesson">
+<div class="hdr"><button class="iconbtn" onClick="{{backLesson}}"><svg class="ic" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg></button><div class="f1"><div class="htitle" style="font-size:14px">{{lessonT}}</div><div class="rsub">{{lessonCourse}}</div></div></div>
+<div class="scr">
+<div class="videobox" onClick="{{playVideo}}"><svg class="ic" viewBox="0 0 24 24" style="width:34px;height:34px"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg><span class="rsub" style="color:#fff">{{lessonDur}}</span></div>
+<div class="kickrow"><p class="kick">Soundcheck</p></div>
+<sc-if value="{{isQuiz}}" hint-placeholder-val="{{false}}">
+<p class="rtitle" style="margin-bottom:10px">{{checkQ}}</p>
+<sc-for list="{{checkOpts}}" as="o" hint-placeholder-count="3"><button class="optbtn w100 mb8" style="display:block" onClick="{{o.pick}}"><span class="{{o.rdotcls}}"></span> {{o.name}}</button></sc-for>
+<button class="btn btn-primary btn-block mt16" onClick="{{submitCheck}}" disabled="{{checkDisabled}}">Check answer</button>
+<sc-if value="{{showCorrect}}" hint-placeholder-val="{{false}}"><p class="rsub mt12" style="color:var(--color-accent-700)">Correct — lesson marked complete.</p></sc-if>
+<sc-if value="{{showWrong}}" hint-placeholder-val="{{false}}"><p class="rsub mt12">Not quite — rewatch the video and try again.</p></sc-if>
+</sc-if>
+<sc-if value="{{isAudio}}" hint-placeholder-val="{{true}}">
+<p class="rsub mb12">Record yourself playing the excerpt below — AI compares it to the sheet music and checks your technique.</p>
+<div class="banner">
+<div class="rtitle">{{targetPiece}}</div>
+<div class="rsub mt8">{{excerpt}}</div>
+</div>
+<sc-if value="{{hasMark}}" hint-placeholder-val="{{true}}">
+<div class="sheet" style="cursor:default;padding:20px 8px 4px">
+<div class="sys" style="margin-bottom:8px"><span class="mark" style="left:{{markX}}px;top:-6px;font-size:10px;color:var(--color-accent-700)">{{markLabel}}</span></div>
+</div>
+<p class="rsub" style="margin-top:-4px">{{markNote}}</p>
+</sc-if>
+<sc-if value="{{recIdle}}" hint-placeholder-val="{{true}}"><button class="btn btn-primary btn-block mt16" onClick="{{startRecording}}">Start recording</button></sc-if>
+<sc-if value="{{recRecording}}" hint-placeholder-val="{{false}}"><div class="tc mt16"><div class="bignote" style="font-size:40px;color:var(--color-accent)">{{recSecsLabel}}</div><p class="rsub mt8">Recording — play the excerpt now</p><button class="btn btn-secondary btn-block mt16" onClick="{{stopRecording}}">Stop and analyze</button></div></sc-if>
+<sc-if value="{{recAnalyzing}}" hint-placeholder-val="{{false}}"><p class="rsub tc mt16">Analyzing your recording against the sheet music…</p></sc-if>
+<sc-if value="{{recDone}}" hint-placeholder-val="{{false}}"><div class="mt16">
+<div class="fx ac jb"><p class="kick m0">Match score</p><span class="bignum">{{fbScore}}%</span></div>
+<div class="prog mt8"><i style="width:{{fbScore}}%"></i></div>
+<p class="kick mt16">What you did well</p>
+<sc-for list="{{fbStrengths}}" as="s" hint-placeholder-count="2"><p class="rsub mt8">✓ {{s}}</p></sc-for>
+<p class="kick mt16">What to work on</p>
+<sc-for list="{{fbWork}}" as="w" hint-placeholder-count="2"><p class="rsub mt8">→ {{w}}</p></sc-for>
+<button class="btn btn-secondary btn-block mt16" onClick="{{retryRecording}}">Record again</button>
+</div></sc-if>
+</sc-if>
+</div></div></sc-if>
+<sc-if value="{{sTrans}}" hint-placeholder-val="{{false}}"><div class="col f1 ohide" data-screen-label="AI transcription">
+<div class="hdr"><button class="iconbtn" onClick="{{back}}"><svg class="ic" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg></button><span class="htitle">AI transcription</span></div>
+<div class="scr">
+<h3 class="m0 mt8" style="font-size:22px">Turn any song or audio into sheet music.</h3>
+<div class="wave"></div><div class="wave short"></div>
+<button class="rowbtn" onClick="{{srcFile}}"><span class="{{rFile}}"></span><svg class="ic" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg><div class="f1"><div class="rtitle">Upload audio file</div><div class="rsub">MP3, WAV, M4A</div></div></button>
+<button class="rowbtn" onClick="{{srcYt}}"><span class="{{rYt}}"></span><svg class="ic" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg><div class="f1"><div class="rtitle">Paste YouTube link</div><div class="rsub">Extract audio from any video</div></div></button>
+<button class="rowbtn" onClick="{{srcRec}}"><span class="{{rRec}}"></span><svg class="ic" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line></svg><div class="f1"><div class="rtitle">Record audio</div><div class="rsub">Record directly in the app</div></div></button>
+<div class="setrow" style="cursor:default">Cost<span class="setval" style="color:var(--color-accent-700)">{{transCost}}</span></div>
+<sc-if value="{{isFree}}" hint-placeholder-val="{{true}}"><div class="banner">AI transcription is part of the ViolaHub subscription.<button class="btn btn-primary btn-block" onClick="{{upgrade}}">Subscribe to unlock</button></div></sc-if>
+<sc-if value="{{isSub}}" hint-placeholder-val="{{false}}"><button class="btn btn-primary btn-block mt16" onClick="{{doTrans}}" disabled="{{trans}}">{{transLabel}}</button></sc-if>
+</div></div></sc-if>
+<sc-if value="{{sProfile}}" hint-placeholder-val="{{false}}"><div class="col f1 ohide" data-screen-label="Profile">
+<div class="hdr jb"><span class="htitle">Profile</span><button class="iconbtn" onClick="{{tSettings}}"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.08a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button></div>
+<div class="scr">
+<div class="fx ac gap12 mt8"><div class="avatar">E</div><div class="f1"><div class="htitle">Emily</div><div class="rsub">Violist · Boston, MA</div></div><span class="tag tag-accent">{{planLabel}}</span></div>
+<sc-if value="{{isFree}}" hint-placeholder-val="{{true}}"><button class="btn btn-secondary btn-block mt16" onClick="{{upgrade}}">Subscribe — unlock all courses</button></sc-if>
+<div class="mt16"><sc-for list="{{menu}}" as="m" hint-placeholder-count="7"><button class="rowbtn" onClick="{{m.open}}"><span class="rtitle f1">{{m.t}}</span><svg class="ic ic16 chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button></sc-for></div>
+</div></div></sc-if>
+<sc-if value="{{toast}}" hint-placeholder-val="{{false}}"><div class="toast">{{toast}}</div></sc-if>
+<sc-if value="{{showTabs}}" hint-placeholder-val="{{true}}"><div class="tabbar">
+<div class="railbrand">VIOLAHUB<span class="bdot">.</span></div>
+<button class="titem {{cTHome}}" onClick="{{goHome}}"><svg class="ic" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>Home</button>
+<button class="titem {{cTMusic}}" onClick="{{goMusic}}"><svg class="ic" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>Music</button>
+<button class="titem {{cTPrac}}" onClick="{{goPrac}}"><svg class="ic" viewBox="0 0 24 24"><line x1="10" y1="2" x2="14" y2="2"></line><line x1="12" y1="14" x2="15" y2="11"></line><circle cx="12" cy="14" r="8"></circle></svg>Practice</button>
+<button class="titem {{cTLearn}}" onClick="{{goLearn}}"><svg class="ic" viewBox="0 0 24 24"><path d="M22 10L12 5 2 10l10 5 10-5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>Learn</button>
+<button class="titem {{cTProf}}" onClick="{{goProf}}"><svg class="ic" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>Profile</button>
+</div></sc-if>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:900},&quot;homeVariant&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;a&quot;,&quot;b&quot;,&quot;c&quot;],&quot;default&quot;:&quot;a&quot;,&quot;tsType&quot;:&quot;'a'|'b'|'c'&quot;,&quot;section&quot;:&quot;Home&quot;},&quot;plan&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Free plan&quot;,&quot;Subscriber&quot;],&quot;default&quot;:&quot;Subscriber&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Profile&quot;}}">
+class Component extends DCLogic {
+  state = { device:'phone', tab:'home', sub:null, hv:null, plan:null, q:'', city:'',
+    bpm:80, run:false, beat:-1, tsIdx:2, accent:1, soundIdx:0, prTool:'met', learnTab:'crs',
+    annTool:'select', bowDir:'up', finger:'1', marks:[], strokes:[], piece:null, browse:null, overlay:null,
+    recentOpened:[{t:'Telemann: Fantasia No. 2', s:'Yesterday'},{t:'Wohlfahrt: Op. 45 No. 1', s:'2 days ago'}],
+    course:null, lesson:null, checkPick:null, checkResult:null, done:{},
+    cents:0, heard:null, hz:0, listening:false, droneNote:'A', droneOct:3, dronePlay:false,
+    src:'file', trans:false, metMenu:null, srMenu:null, srNum:1, srKeyIdx:0, srTsIdx:2, srNotes:['Quarter notes','Eighth notes'], srAdd:[], toast:null };
+  TS = ['2/4','3/4','4/4','5/4','6/4','7/4','2/2','3/2','3/8','6/8','9/8','12/8','5/8','7/8'];
+  SOUNDS = ['Woodblock','Click','Beep'];
+  KEYS = ['C major','G major','D major','A major','E major','B major','F# major','C# major','F major','B♭ major','E♭ major','A♭ major','D♭ major','G♭ major','C♭ major','A minor','E minor','B minor','F# minor','C# minor','G# minor','D# minor','A# minor','D minor','G minor','C minor','F minor','B♭ minor','E♭ minor','A♭ minor'];
+  NVS = ['Whole notes','Half notes','Quarter notes','Eighth notes','Sixteenth notes','Dotted rhythms','Triplets','Syncopation','Whole rests','Half rests','Quarter rests','Eighth rests','Sixteenth rests'];
+  SROPTS = ['Shifting','Double stops','Treble clef part'];
+  NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+  ctx(){ this.ac = this.ac || new (window.AudioContext||window.webkitAudioContext)(); return this.ac; }
+  beats(){ return parseInt(this.TS[this.state.tsIdx],10); }
+  click(hi){ try{ const ctx=this.ctx(); const i=this.state.soundIdx;
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.type = i===0?'square':i===1?'sine':'triangle';
+    o.frequency.value = i===0?(hi?1400:1000):i===1?(hi?2100:1700):(hi?880:660);
+    g.gain.setValueAtTime(0.2, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.07);
+    o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime+0.08);
+  }catch(e){} }
+  startIv(bpm){ clearInterval(this.iv);
+    this.iv = setInterval(()=>{ const nb=(this.state.beat+1)%this.beats();
+      this.click(nb===this.state.accent-1); this.setState({beat:nb}); }, 60000/bpm); }
+  toggleRun(){ if(this.state.run){ clearInterval(this.iv); this.setState({run:false,beat:-1}); }
+    else{ this.setState({run:true,beat:0}); this.click(this.state.accent===1); this.startIv(this.state.bpm); } }
+  setBpmVal(bpm){ bpm=Math.max(30,Math.min(240,bpm)); this.setState({bpm}); if(this.state.run) this.startIv(bpm); }
+  freq(n,oct){ oct=oct??this.state.droneOct; return 220*Math.pow(2,(this.NOTES.indexOf(n)-9)/12)*Math.pow(2,oct-3); }
+  toggleDrone(){ if(this.state.dronePlay){ try{this.osc&&this.osc.stop();}catch(e){} this.osc=null; this.setState({dronePlay:false}); }
+    else{ try{ const ctx=this.ctx(); const o=ctx.createOscillator(), g=ctx.createGain();
+      o.type='sawtooth'; o.frequency.value=this.freq(this.state.droneNote);
+      g.gain.value=0.06; o.connect(g); g.connect(ctx.destination); o.start(); this.osc=o; }catch(e){}
+      this.setState({dronePlay:true}); } }
+  stopListen(){ cancelAnimationFrame(this.raf);
+    if(this.stream){ this.stream.getTracks().forEach(t=>t.stop()); this.stream=null; }
+    this.setState({listening:false}); }
+  detectPitch(buf,sr){ const n=buf.length; let rms=0;
+    for(let i=0;i<n;i++) rms+=buf[i]*buf[i];
+    if(Math.sqrt(rms/n)<0.012) return -1;
+    let r1=0,r2=n-1;
+    for(let i=0;i<n/2;i++) if(Math.abs(buf[i])<0.02){r1=i;break;}
+    for(let i=1;i<n/2;i++) if(Math.abs(buf[n-i])<0.02){r2=n-i;break;}
+    const b=buf.slice(r1,r2), m=b.length;
+    const c=new Array(m).fill(0);
+    for(let lag=0;lag<m;lag++) for(let i=0;i<m-lag;i++) c[lag]+=b[i]*b[i+lag];
+    let d=0; while(d<m-1&&c[d]>c[d+1]) d++;
+    let maxv=-1,maxp=-1;
+    for(let i=d;i<m;i++) if(c[i]>maxv){maxv=c[i];maxp=i;}
+    if(maxp<=0) return -1;
+    let T=maxp;
+    const x1=c[maxp-1],x2=c[maxp],x3=c[maxp+1]||x2;
+    const a=(x1+x3-2*x2)/2, bq=(x3-x1)/2;
+    if(a) T=maxp-bq/(2*a);
+    const f=sr/T;
+    return (f>60&&f<2000)?f:-1; }
+  toggleListen(){ if(this.state.listening){ this.stopListen(); return; }
+    const NAMES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+    navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
+      this.stream=stream;
+      const ctx=this.ctx(), src=ctx.createMediaStreamSource(stream);
+      const an=ctx.createAnalyser(); an.fftSize=2048; src.connect(an);
+      const buf=new Float32Array(an.fftSize);
+      this.setState({listening:true});
+      let last=0;
+      const loop=(t)=>{ this.raf=requestAnimationFrame(loop);
+        if(t-last<120) return; last=t;
+        an.getFloatTimeDomainData(buf);
+        const f=this.detectPitch(buf,ctx.sampleRate);
+        if(f>0){ const midi=69+12*Math.log2(f/440);
+          const near=Math.round(midi);
+          const cents=Math.max(-50,Math.min(50,Math.round((midi-near)*100)));
+          const name=NAMES[(near%12+12)%12]+(Math.floor(near/12)-1);
+          this.setState({cents, heard:name, hz:Math.round(f)}); } };
+      this.raf=requestAnimationFrame(loop);
+    }).catch(()=>this.showToast('Microphone access is needed for the tuner')); }
+  showToast(msg){ clearTimeout(this.tt); this.setState({toast:msg});
+    this.tt=setTimeout(()=>this.setState({toast:null}),1900); }
+  componentWillUnmount(){ clearInterval(this.iv); clearTimeout(this.tt); clearTimeout(this.trt); clearInterval(this.recIv); clearTimeout(this.fbt);
+    this.stopListen(); try{this.osc&&this.osc.stop();}catch(e){} }
+
+  openPiece(p){ this.setState(s=>({sub:'sheet', piece:{t:p.t,s:p.s},
+    recentOpened:[{t:p.t,s:'Just now'}, ...s.recentOpened.filter(r=>r.t!==p.t)].slice(0,8)})); }
+  openCourse(c){ this.setState({sub:'course', course:c, lesson:null}); }
+  openLesson(course,lesson,idx){ this.setState({sub:'lesson', lesson:{...lesson,idx,course:course.t}, checkPick:null, checkResult:null, recState:'idle', recSecs:0, feedback:null}); }
+  pickCheck(i){ this.setState({checkPick:i}); }
+  submitCheck(){ const l=this.state.lesson; if(this.state.checkPick==null) return;
+    const ok=this.state.checkPick===l.a;
+    this.setState(s=>({checkResult:ok?'correct':'wrong',
+      done: ok?{...s.done,[l.course+'|'+l.idx]:true}:s.done}));
+    this.showToast(ok?'Correct — lesson complete':'Not quite — give it another watch'); }
+  startRecording(){
+    clearInterval(this.recIv);
+    this.setState({recState:'recording', recSecs:0, feedback:null});
+    this.recIv=setInterval(()=>this.setState(s=>({recSecs:s.recSecs+1})),1000);
+  }
+  stopRecording(){
+    clearInterval(this.recIv);
+    this.setState({recState:'analyzing'});
+    this.fbt=setTimeout(()=>{
+      const l=this.state.lesson;
+      const BANKS={
+        shifting:{strengths:['Clean shift into the new position, no audible slide','Landed the shifted note in tune','Left hand stayed relaxed through the shift','Bow kept a steady tone through the position change'],
+          work:['The shift lands a little sharp — check the new hand frame','Audible slide between positions — aim for a quicker, lighter shift','Tempo dips right at the shift — keep the pulse steady','Guide finger contact is too heavy going into the shift']},
+        vibrato:{strengths:['Even, consistent vibrato width','Vibrato speed matches the mood of the phrase','Relaxed wrist/arm motion','Vibrato starts right as the note begins'],
+          work:['Vibrato is a bit tense — loosen the wrist','Width varies note to note — aim for consistency','Vibrato starts late after the note begins','Try a faster vibrato for this phrase\u2019s energy']},
+        intonation:{strengths:['Pitches line up cleanly against the reference','Confident, centered intonation','Consistent tuning across the phrase','Good ear for correcting pitch mid-note'],
+          work:['A few notes drift flat against the reference','The leading tone could sit higher','Double-stops are slightly out of tune with each other','Check intonation on the shifted notes specifically']},
+        bow:{strengths:['Even bow speed start to finish','Good contact point near the bridge','Smooth string crossings','Full, resonant tone'],
+          work:['Bow speed slows near the tip','Contact point drifts toward the fingerboard','A little scratch at the bow change','Try more arm weight for a fuller sound']},
+        tuning:{strengths:['Open strings are well in tune with each other','Clean, resonant open-string tone','Confident peg adjustments'],
+          work:['The A string sits slightly sharp','Check the C string against the tuner again','Bow pressure is too heavy while tuning']},
+        reading:{strengths:['Rhythm matched the notated values','Correct notes throughout the line','Steady tempo while reading'],
+          work:['A rhythm was rushed in the second measure','One note was misread — double check the key signature','Tempo dragged toward the end of the line']}
+      };
+      const b=BANKS[l.skill]||BANKS.reading;
+      const pick=(bank,n)=>bank.slice().sort(()=>Math.random()-0.5).slice(0,n);
+      this.setState(s=>({recState:'done', feedback:{
+        score:Math.floor(72+Math.random()*22),
+        strengths:pick(b.strengths,2), work:pick(b.work,2)},
+        done:{...s.done,[l.course+'|'+l.idx]:true}}));
+      this.showToast('AI feedback ready — lesson complete');
+    },1800);
+  }
+  retryRecording(){ clearInterval(this.recIv); clearTimeout(this.fbt); this.setState({recState:'idle', recSecs:0, feedback:null}); }
+  addMark(e){ const t=this.state.annTool; if(t==='select'||t==='pen') return;
+    const r=e.currentTarget.getBoundingClientRect();
+    const sym=t==='bow'?(this.state.bowDir==='up'?'∨':'∏'):this.state.finger;
+    this.setState(s=>({marks:[...s.marks,{x:Math.round(e.clientX-r.left),y:Math.round(e.clientY-r.top),sym}]})); }
+  penPt(e){ const r=e.currentTarget.getBoundingClientRect();
+    return Math.round(e.clientX-r.left)+','+Math.round(e.clientY-r.top); }
+  penDown(e){ if(this.state.annTool!=='pen') return;
+    e.currentTarget.setPointerCapture&&e.currentTarget.setPointerCapture(e.pointerId);
+    this.drawing=true;
+    this.setState(s=>({strokes:[...s.strokes,{pts:this.penPt(e)}]})); }
+  penMove(e){ if(!this.drawing||this.state.annTool!=='pen') return;
+    const pt=this.penPt(e);
+    this.setState(s=>{ const ks=s.strokes.slice(); const last=ks[ks.length-1];
+      ks[ks.length-1]={pts:last.pts+' '+pt}; return {strokes:ks}; }); }
+  penUp(){ this.drawing=false; }
+  subbed(){ return (this.state.plan ?? (this.props.plan ?? 'Free plan'))!=='Free plan'; }
+  aiMark(){ if(!this.subbed()){ this.showToast('AI markup is part of the subscription — subscribe in Profile'); return; }
+    const rand=(a,b)=>a+Math.random()*(b-a); const syms=['3','1','∨','∏'];
+    const ms=Array.from({length:8},()=>({x:Math.round(rand(30,330)),y:Math.round(rand(30,340)),sym:syms[Math.floor(Math.random()*4)]}));
+    this.setState(s=>({marks:[...s.marks,...ms]})); this.showToast('AI markup added — included in your subscription'); }
+  doTrans(){ if(this.state.trans) return; this.setState({trans:true});
+    this.trt=setTimeout(()=>{ this.setState({trans:false,sub:null,tab:'music'});
+      this.showToast('Transcription added to your library'); },1600); }
+
+  renderVals(){
+    const S=this.state;
+    const hv = S.hv ?? (this.props.homeVariant ?? 'a');
+    const plan = S.plan ?? (this.props.plan ?? 'Subscriber');
+    const tab=S.tab, sub=S.sub;
+    const scr = sub || tab;
+    const nav=(tab)=>()=>this.setState({tab,sub:null});
+    const T=(m)=>()=>this.showToast(m);
+    const q=S.q.toLowerCase();
+    const pieces=[
+      {t:'Bach: Suite No. 1 in G Major', s:'I. Allemande', star:'★'},
+      {t:'Hoffmeister: Concerto in D Major', s:'I. Allegro moderato', star:''},
+      {t:'Suzuki Viola School', s:'Book 2', star:''}];
+    const musicList=pieces.filter(p=>p.t.toLowerCase().includes(q)).map(p=>({...p, open:()=>this.openPiece(p)}));
+    const homeRecent=S.recentOpened.map(p=>({...p, short:p.t, open:()=>this.openPiece(p)}));
+    const isComm=S.browse==='comm', isPro=S.browse==='pro';
+    const commList=[
+      {t:'Etude in C', s:'by @violajen · 412 downloads', cta:'Open', cls:'btn-ghost'},
+      {t:'Irish Reel Set for Viola', s:'by @fiddleviola · 208 downloads', cta:'Open', cls:'btn-ghost'},
+      {t:'Warm-up Drones & Scales', s:'by @bratschist · 1.1k downloads', cta:'Open', cls:'btn-ghost'},
+      {t:'Pop Medley (viola solo)', s:'by @emviola · 96 downloads', cta:'Open', cls:'btn-ghost'}]
+      .map(b=>({...b, act:()=>this.openPiece({t:b.t,s:'Community'})}));
+    const proList=[
+      {t:'Schott: Telemann Viola Concerto', s:'Digital · $12.99 · opens in app', cta:'Buy on Amazon', cls:'btn-secondary'},
+      {t:'Bärenreiter: Bach Cello Suites (viola)', s:'Physical · $34.00 · ships to you', cta:'Buy on Amazon', cls:'btn-secondary'},
+      {t:'Henle: Brahms Sonatas Op. 120', s:'Digital · $18.99 · opens in app', cta:'Buy on Amazon', cls:'btn-secondary'},
+      {t:'Suzuki Viola School, Book 3', s:'Physical · $10.99 · ships to you', cta:'Buy on Amazon', cls:'btn-secondary'}]
+      .map(b=>({...b, act:T('Opens Amazon checkout in a browser')}));
+    const subbed = (S.plan ?? (this.props.plan ?? 'Free plan'))!=='Free plan';
+    const courses=[
+      {t:'Beginner Viola', s:'Tuning, posture, first notes · 12 lessons', lessons:[
+        {t:'Parts of the viola',d:'3:30',type:'quiz',q:'Which part do you turn to change a string\u2019s pitch?',opts:['The bridge','The tuning peg','The f-hole'],a:1},
+        {t:'Holding the viola',d:'4:12',type:'audio',skill:'bow',markMeasure:2,excerpt:'Open C, G, D and A strings, whole notes',target:'Bach: Suite No. 1 in G Major — I. Allemande, m.1–4'},
+        {t:'Tuning your strings',d:'5:03',type:'audio',skill:'tuning',markMeasure:1,excerpt:'C–G–D–A open strings',target:'Open string tuning check'},
+        {t:'Your first bow stroke',d:'6:20',type:'audio',skill:'bow',markMeasure:1,excerpt:'Long, even down-bows on the D string',target:'Bach: Suite No. 1 in G Major — I. Allemande, m.1–2'},
+        {t:'Reading your first notes',d:'7:45',type:'audio',skill:'reading',markMeasure:2,excerpt:'First line, quarter notes only',target:'Suzuki Viola School, Book 1 — No. 3'}]},
+      {t:'Shifting Techniques', s:'Improve your range · 8 lessons', lessons:[
+        {t:'What is shifting?',d:'5:10',type:'audio',skill:'shifting',markMeasure:2,excerpt:'First-to-third position shift on the A string',target:'Shifting Techniques — Exercise 2'},
+        {t:'First to third position',d:'6:40',type:'audio',skill:'shifting',markMeasure:3,excerpt:'Scale with one shift per line',target:'Shifting Techniques — Exercise 5'},
+        {t:'Shifting on scales',d:'8:15',type:'audio',skill:'shifting',markMeasure:5,excerpt:'Two-octave G major scale, shifting each octave',target:'Shifting Techniques — Exercise 8'}]},
+      {t:'Vibrato Mastery', s:'Beautiful, expressive sound · 10 lessons', lessons:[
+        {t:'The motion of vibrato',d:'4:50',type:'audio',skill:'vibrato',markMeasure:2,excerpt:'Sustained D on the A string with vibrato',target:'Vibrato Mastery — Exercise 1'},
+        {t:'Arm vs. wrist vibrato',d:'6:05',type:'audio',skill:'vibrato',markMeasure:1,excerpt:'Slow phrase, alternating vibrato style',target:'Vibrato Mastery — Exercise 4'},
+        {t:'Adding vibrato to phrases',d:'7:30',type:'audio',skill:'vibrato',markMeasure:3,excerpt:'Short lyrical phrase',target:'Vibrato Mastery — Exercise 7'}]},
+      {t:'Intonation Essentials', s:'Play in tune with confidence · 9 lessons', lessons:[
+        {t:'Why intonation matters',d:'3:55',type:'audio',skill:'intonation',markMeasure:2,excerpt:'Slow scale, listening for pitch',target:'Intonation Essentials — Exercise 1'},
+        {t:'Using open strings as reference',d:'5:20',type:'audio',skill:'intonation',markMeasure:1,excerpt:'Double-stops against open strings',target:'Intonation Essentials — Exercise 3'},
+        {t:'Practicing with a drone',d:'6:45',type:'audio',skill:'intonation',markMeasure:3,excerpt:'Scale against a sustained drone',target:'Intonation Essentials — Exercise 6'}]}]
+      .map(c=>({...c, open:subbed?()=>this.openCourse(c):T('Subscribe to access courses')}));
+
+    const menu=['My library','Downloads','Practice history','Subscription & billing','Settings','Help & support']
+      .map(t=>({t, open:T(t+' is out of scope for this prototype')}));
+    const nb=this.beats();
+    const beatDots=Array.from({length:nb},(_,i)=>({cls:'dot2'+(i===S.beat&&S.run?' hit':i===S.accent-1?' acc':'')}));
+    const bpm=S.bpm;
+    const tempoName=bpm<60?'Largo':bpm<76?'Adagio':bpm<108?'Andante':bpm<120?'Moderato':bpm<156?'Allegro':bpm<200?'Presto':'Prestissimo';
+    const goTool=(prTool)=>()=>this.setState({prTool});
+    const goToolH=(prTool)=>()=>this.setState({tab:'practice',sub:null,prTool});
+    const droneNotes=this.NOTES.map(n=>({name:n,
+      cls:'notebtn'+(n===S.droneNote?' on':''),
+      pick:()=>{ this.setState({droneNote:n}); if(this.osc) this.osc.frequency.value=this.freq(n,S.droneOct); }}));
+    const octOpts=[2,3,4].map(o=>({name:'C'+o+'–B'+o, on:o===S.droneOct,
+      pick:()=>{ this.setState({droneOct:o}); if(this.osc) this.osc.frequency.value=this.freq(S.droneNote,o); }}));
+    const setSrc=(src)=>()=>this.setState({src});
+    const setHv=(hv)=>()=>this.setState({hv,tab:'home',sub:null});
+    return {
+      sHome:scr==='home', sMusic:scr==='music', sPractice:scr==='practice',
+      sLearn:scr==='learn', sProfile:scr==='profile',
+      sSheet:scr==='sheet', sTrans:scr==='trans', sBrowse:scr==='browse',
+      sCourse:scr==='course', sLesson:scr==='lesson',
+      courseT:(S.course||{}).t||'', courseS:(S.course||{}).s||'',
+      lessons:((S.course||{}).lessons||[]).map((l,idx)=>({...l,
+        mark:S.done[S.course.t+'|'+idx]?'✓':'▶',
+        checkKind:l.type==='quiz'?'quiz':'record & AI check',
+        open:()=>this.openLesson(S.course,l,idx)})),
+      lessonT:(S.lesson||{}).t||'', lessonCourse:(S.lesson||{}).course||'',
+      lessonDur:(S.lesson||{}).d||'',
+      backLesson:()=>this.setState({sub:'course', lesson:null}),
+      playVideo:T('Playing lesson video'),
+      isQuiz:(S.lesson||{}).type==='quiz', isAudio:(S.lesson||{}).type==='audio',
+      checkQ:(S.lesson||{}).q||'',
+      checkOpts:((S.lesson||{}).opts||[]).map((name,i)=>({name,
+        rdotcls:'rdot'+(S.checkPick===i?' on':''),
+        pick:()=>this.pickCheck(i)})),
+      checkDisabled:S.checkPick==null,
+      showCorrect:S.checkResult==='correct', showWrong:S.checkResult==='wrong',
+      submitCheck:()=>this.submitCheck(),
+      excerpt:(S.lesson||{}).excerpt||'', targetPiece:(S.lesson||{}).target||'',
+      hasMark:!!(S.lesson||{}).markMeasure,
+      markX:((S.lesson||{}).markMeasure||0)*60,
+      markLabel:{shifting:'shift ↗',vibrato:'vibrato ~',intonation:'pitch ✓',bow:'bow ↔',tuning:'in tune?',reading:'rhythm ♩'}[(S.lesson||{}).skill]||'check',
+      markNote:{shifting:'AI checks specifically for a clean position shift at the marked point — not just the right notes.',
+        vibrato:'AI checks specifically for consistent vibrato width and speed at the marked point.',
+        intonation:'AI checks specifically for pitch accuracy at the marked point.',
+        bow:'AI checks specifically for bow control and tone at the marked point.',
+        tuning:'AI checks specifically that this string is in tune at the marked point.',
+        reading:'AI checks specifically for correct rhythm and notes at the marked point.'}[(S.lesson||{}).skill]||'AI checks your technique at the marked point.',
+      recIdle:S.recState==='idle', recRecording:S.recState==='recording',
+      recAnalyzing:S.recState==='analyzing', recDone:S.recState==='done',
+      recSecsLabel:'0:'+String(S.recSecs%60).padStart(2,'0'),
+      startRecording:()=>this.startRecording(), stopRecording:()=>this.stopRecording(),
+      retryRecording:()=>this.retryRecording(),
+      fbScore:(S.feedback||{}).score||0,
+      fbStrengths:(S.feedback||{}).strengths||[],
+      fbWork:(S.feedback||{}).work||[],
+      showTabs:sub!=='sheet',
+      hvA:hv==='a', hvB:hv==='b', hvC:hv==='c',
+      devCls:S.device==='ipad'?'ipad':'',
+      cDevP:S.device==='phone'?'on':'', cDevI:S.device==='ipad'?'on':'',
+      setDevP:()=>this.setState({device:'phone'}),
+      setDevI:()=>this.setState({device:'ipad'}),
+      cVa:hv==='a'?'on':'', cVb:hv==='b'?'on':'', cVc:hv==='c'?'on':'',
+      setVa:setHv('a'), setVb:setHv('b'), setVc:setHv('c'),
+      goHome:nav('home'), goMusic:nav('music'), goPrac:nav('practice'),
+      goLearn:nav('learn'), goProf:nav('profile'),
+      cTHome:tab==='home'&&!sub?'on':'', cTMusic:tab==='music'&&!sub?'on':'',
+      cTPrac:tab==='practice'&&!sub?'on':'', cTLearn:tab==='learn'&&!sub?'on':'',
+      cTProf:tab==='profile'&&!sub?'on':'',
+      back:()=>this.setState({sub:null}),
+      openSheet:()=>this.openPiece({t:'Bach: Suite No. 1 in G Major',s:'I. Allemande'}),
+      openTrans:()=>this.setState({sub:'trans',tab:'music'}),
+      openComm:()=>this.setState({sub:'browse',browse:'comm'}),
+      openPro:()=>this.setState({sub:'browse',browse:'pro'}),
+      isComm, isPro,
+      browseT:isComm?'Community music':'Professional music',
+      browseS:isComm?'Free · by violists, for violists':'Paid · purchased via Amazon',
+      browseList:isComm?commList:proList,
+      pieceT:(S.piece||{}).t||'', pieceS:(S.piece||{}).s||'',
+      q:S.q, setQ:(e)=>this.setState({q:e.target.value}),
+      musicList, noResults:musicList.length===0, homeRecent, courses, menu,
+      bpm, tempoName, ts:this.TS[S.tsIdx], accent:S.accent===0?'None':S.accent, sound:this.SOUNDS[S.soundIdx],
+      beatDots, runLabel:S.run?'Stop':'Start',
+      toggleRun:()=>this.toggleRun(),
+      bpmUp:()=>this.setBpmVal(S.bpm+1), bpmDown:()=>this.setBpmVal(S.bpm-1),
+      setBpm:(e)=>this.setBpmVal(+e.target.value),
+      menuTs:()=>this.setState({metMenu:S.metMenu==='ts'?null:'ts'}),
+      menuAcc:()=>this.setState({metMenu:S.metMenu==='acc'?null:'acc'}),
+      menuSound:()=>this.setState({metMenu:S.metMenu==='sound'?null:'sound'}),
+      openTs:S.metMenu==='ts', openAcc:S.metMenu==='acc', openSound:S.metMenu==='sound',
+      rotTs:S.metMenu==='ts'?'rotate(90deg)':'none', rotAcc:S.metMenu==='acc'?'rotate(90deg)':'none',
+      rotSound:S.metMenu==='sound'?'rotate(90deg)':'none',
+      tsOpts:this.TS.map((t,i)=>({name:t, on:i===S.tsIdx?'on':'',
+        pick:()=>this.setState({tsIdx:i, accent:1, beat:-1})})),
+      accOpts:[{name:'No accent', on:S.accent===0?'on':'', pick:()=>this.setState({accent:0})}]
+        .concat(Array.from({length:nb},(_,i)=>({name:'Beat '+(i+1), on:i+1===S.accent?'on':'',
+        pick:()=>this.setState({accent:i+1})}))),
+      soundOpts:this.SOUNDS.map((s,i)=>({name:s, on:i===S.soundIdx?'on':'',
+        pick:()=>this.setState({soundIdx:i})})),
+      pMet:S.prTool==='met', pTun:S.prTool==='tun', pDro:S.prTool==='dro', pSr:S.prTool==='sr',
+      cMet:S.prTool==='met'?'on':'', cTun:S.prTool==='tun'?'on':'',
+      cDro:S.prTool==='dro'?'on':'', cSr:S.prTool==='sr'?'on':'',
+      goMet:goTool('met'), goTun:goTool('tun'), goDro:goTool('dro'), goSr:goTool('sr'),
+      goMetH:goToolH('met'), goTunH:goToolH('tun'), goDroH:goToolH('dro'), goSrH:goToolH('sr'),
+      tunerNote:S.heard||'', centsLabel:(S.cents>0?'+':'')+S.cents+' cents · '+S.hz+' Hz',
+      heardNote:!!S.heard, notHeard:!S.heard,
+      noPitchLabel:S.listening?'Listening for a pitch…':'Play a note',
+      needleRot:'rotate('+(S.cents*1.2)+'deg)',
+      listenLabel:S.listening?'Stop listening':'Start listening',
+      toggleListen:()=>this.toggleListen(),
+      tunerHint:S.listening?'Listening… play a long, steady bow stroke.':'Uses your microphone — tap start and play a note.',
+      droneNotes, droneNote:S.droneNote, octOpts,
+      droneLabel:S.dronePlay?'Stop drone':'Play drone', toggleDrone:()=>this.toggleDrone(),
+      srNum:S.srNum, srKey:this.KEYS[S.srKeyIdx],
+      srNv:S.srNotes.length===0?'None selected':S.srNotes.length+' selected',
+      srTreble:S.srAdd.includes('Treble clef part'),
+      srOpts:this.SROPTS.map(name=>({name,
+        cls:'chk'+(S.srAdd.includes(name)?' on':''),
+        toggle:()=>this.setState(s=>({srAdd:s.srAdd.includes(name)?s.srAdd.filter(x=>x!==name):[...s.srAdd,name]}))})),
+      menuKey:()=>this.setState({srMenu:S.srMenu==='key'?null:'key'}),
+      menuNv:()=>this.setState({srMenu:S.srMenu==='nv'?null:'nv'}),
+      menuSrTs:()=>this.setState({srMenu:S.srMenu==='ts'?null:'ts'}),
+      openKey:S.srMenu==='key', openNv:S.srMenu==='nv', openSrTs:S.srMenu==='ts',
+      rotKey:S.srMenu==='key'?'rotate(90deg)':'none', rotNv:S.srMenu==='nv'?'rotate(90deg)':'none',
+      rotSrTs:S.srMenu==='ts'?'rotate(90deg)':'none',
+      keyOpts:this.KEYS.map((k,i)=>({name:k, on:i===S.srKeyIdx?'on':'',
+        pick:()=>this.setState({srKeyIdx:i})})),
+      srTs:this.TS[S.srTsIdx],
+      srTsOpts:this.TS.map((t,i)=>({name:t, on:i===S.srTsIdx?'on':'',
+        pick:()=>this.setState({srTsIdx:i})})),
+      nvOpts:this.NVS.map(v=>({name:v, on:S.srNotes.includes(v)?'on':'',
+        pick:()=>this.setState(s=>({srNotes:s.srNotes.includes(v)?s.srNotes.filter(x=>x!==v):[...s.srNotes,v]}))})),
+      newExercise:()=>{ if(S.srNotes.length===0){ this.showToast('Select at least one note type'); return; }
+        this.setState({srNum:S.srNum+1,srMenu:null});
+        this.showToast('Excerpt generated — '+this.KEYS[S.srKeyIdx]+', '+this.TS[S.srTsIdx]); },
+      lCrs:S.learnTab==='crs', lPrg:S.learnTab==='prg',
+      cCrs:S.learnTab==='crs'?'on':'', cPrg:S.learnTab==='prg'?'on':'',
+      goCrs:()=>this.setState({learnTab:'crs'}), goPrg:()=>this.setState({learnTab:'prg'}),
+      cSel:S.annTool==='select'?'on':'', cFing:S.annTool==='fing'?'on':'',
+      cBow:S.annTool==='bow'?'on':'', cPen:S.annTool==='pen'?'on':'',
+      toolSel:()=>this.setState({annTool:'select'}), toolFing:()=>this.setState({annTool:'fing'}),
+      toolBow:()=>this.setState({annTool:'bow'}), toolPen:()=>this.setState({annTool:'pen'}),
+      marks:S.marks, strokes:S.strokes, addMark:(e)=>this.addMark(e), aiMark:()=>this.aiMark(),
+      penDown:(e)=>this.penDown(e), penMove:(e)=>this.penMove(e), penUp:()=>this.penUp(),
+      showBowOpts:S.annTool==='bow',
+      showFingOpts:S.annTool==='fing',
+      fingOpts:['0','1','2','3','4'].map(n=>({n,
+        cls:n===S.finger?'btn-primary':'btn-secondary',
+        pick:()=>this.setState({finger:n})})),
+      ovIsMet:S.overlay==='met', ovIsTun:S.overlay==='tun',
+      cOvMet:S.overlay==='met'?'on':'', cOvTun:S.overlay==='tun'?'on':'',
+      ovMet:()=>this.setState({overlay:S.overlay==='met'?null:'met'}),
+      ovTun:()=>this.setState({overlay:S.overlay==='tun'?null:'tun'}),
+      ovNeedleLeft:'calc(50% + '+S.cents*0.7+'px)',
+      cBowUp:S.bowDir==='up'?'btn-primary':'btn-secondary',
+      cBowDn:S.bowDir==='dn'?'btn-primary':'btn-secondary',
+      bowUp:()=>this.setState({bowDir:'up'}), bowDn:()=>this.setState({bowDir:'dn'}),
+      undoMark:()=>{ if(S.strokes.length) this.setState({strokes:S.strokes.slice(0,-1)});
+        else this.setState({marks:S.marks.slice(0,-1)}); },
+      saveMarks:T('Annotations saved'),
+      srcFile:setSrc('file'), srcYt:setSrc('yt'), srcRec:setSrc('rec'),
+      rFile:'rdot'+(S.src==='file'?' on':''), rYt:'rdot'+(S.src==='yt'?' on':''),
+      rRec:'rdot'+(S.src==='rec'?' on':''),
+      trans:S.trans, transLabel:S.trans?'Transcribing…':'Transcribe',
+      doTrans:()=>this.doTrans(),
+      isFree:plan==='Free plan', isSub:plan!=='Free plan', planLabel:plan,
+      aiMarkLabel:plan==='Free plan'?'AI markup · subscribers':'AI markup',
+      transCost:plan==='Free plan'?'Subscription required':'Included in your subscription',
+      crsIncl:plan==='Free plan'?'':' · included in your subscription',
+      upgrade:()=>{ this.setState({plan:'Subscriber'}); this.showToast('Subscribed — courses unlocked'); },
+      toast:S.toast,
+      tBell:T('No new notifications'), tUpload:T('Opens the file picker to import a PDF or scan'),
+      tBook:T('Saved to bookmarks'), tShare:T('Share sheet opens here'),
+      tPub:T('Publishing flow is out of scope for this prototype'),
+      tSettings:T('Settings is out of scope for this prototype')
+    };
+  }
+}
+</script>
+</body>
+</html>
