@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     webpubsub_endpoint: str = ""            # e.g. https://violahub.webpubsub.azure.com
     webpubsub_hub: str = "violahub"
 
+    # Comma-separated allowed origins for the browser app (the Static Web App URL).
+    cors_origins: str = "*"
+
     # Auth — configure a real IdP's JWKS in prod (RS256). HS secret is dev-only.
     jwt_jwks_url: str = ""
     jwt_audience: str = "violahub"
