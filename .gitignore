@@ -10,3 +10,11 @@ app/node_modules/
 app/dist/
 dist/
 *.log
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.env
