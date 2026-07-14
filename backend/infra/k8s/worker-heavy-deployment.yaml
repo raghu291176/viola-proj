@@ -1,0 +1,30 @@
+# Heavy worker — transcription (Basic Pitch) + OMR (oemer) on the A10G pool.
+# Same image as the standard worker; different topic + node pool (ARCHITECTURE.md §4.2).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: violahub-worker-heavy
+  labels: { app: violahub-worker-heavy }
+spec:
+  replicas: 0            # KEDA scales from 0 on analyze-heavy queue depth
+  selector: { matchLabels: { app: violahub-worker-heavy } }
+  template:
+    metadata:
+      labels: { app: violahub-worker-heavy, azure.workload.identity/use: "true" }
+    spec:
+      serviceAccountName: violahub
+      nodeSelector: { workload: gpu-heavy }
+      tolerations:
+        - { key: sku, operator: Equal, value: gpuheavy, effect: NoSchedule }
+      containers:
+        - name: worker
+          image: ${ACR_LOGIN_SERVER}/violahub-worker:latest
+          env:
+            - { name: DATABASE_URL,            valueFrom: { secretKeyRef: { name: violahub, key: database-url } } }
+            - { name: SERVICEBUS_NAMESPACE,    value: "${SERVICEBUS_NAMESPACE}" }
+            - { name: SERVICEBUS_TOPIC,        value: "analyze-heavy" }
+            - { name: SERVICEBUS_SUBSCRIPTION, value: "workers" }
+            - { name: WEBPUBSUB_ENDPOINT,      value: "${WEBPUBSUB_ENDPOINT}" }
+          resources:
+            requests: { cpu: "2", memory: "8Gi", nvidia.com/gpu: "1" }
+            limits:   { cpu: "4", memory: "16Gi", nvidia.com/gpu: "1" }

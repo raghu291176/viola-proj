@@ -1,0 +1,22 @@
+# Local dev: PostgreSQL (with schema + RLS applied) and the API.
+# The worker needs Azure Blob/Service Bus, so it's not started here — run its
+# models locally instead with `python -m worker.scripts.local_analyze` (no cloud).
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: violahub
+      POSTGRES_PASSWORD: violahub
+      POSTGRES_DB: violahub
+    ports: ["5432:5432"]
+    volumes:
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./db/rls.sql:/docker-entrypoint-initdb.d/02-rls.sql:ro
+
+  api:
+    build: ./api
+    environment:
+      VIOLAHUB_DATABASE_URL: postgresql://violahub:violahub@db:5432/violahub
+      VIOLAHUB_JWT_DEV_SECRET: dev-only-change-me
+    ports: ["8000:8000"]
+    depends_on: [db]

@@ -1,0 +1,20 @@
+# OS metadata
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+
+# Dependencies / build
+node_modules/
+app/node_modules/
+app/dist/
+dist/
+*.log
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.env

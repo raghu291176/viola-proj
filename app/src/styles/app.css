@@ -1,0 +1,182 @@
+/* ViolaHub app component CSS — ported verbatim from ViolaHub Prototype.dc.html
+   (the prototype's <style> block, minus the .wrap/.side harness). */
+
+/* ── atomic utilities (from support.js) ── */
+.m0{margin:0}.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}
+.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.fs13{font-size:13px}.fw6{font-weight:600}
+.col{display:flex;flex-direction:column}.f1{flex:1}.ohide{overflow:hidden}
+.fx{display:flex}.ac{align-items:center}.jb{justify-content:space-between}
+.gap8{gap:8px}.gap12{gap:12px}.tc{text-align:center}.w100{width:100%}.mla{margin-left:auto}
+
+/* ── device frame ── */
+.phone{width:390px;height:800px;border:2px solid var(--color-text);background:var(--color-bg);display:flex;flex-direction:column;overflow:hidden;position:relative;flex:none}
+.phone.ipad{width:834px;height:1194px}
+.railbrand{display:none}
+.ipad .tabbar{display:flex;justify-content:center;gap:28px;padding:6px 0}
+.ipad .titem{flex-direction:row;align-items:center;gap:9px;padding:12px 18px;font-size:12px}
+.ipad .titem .ic{width:22px;height:22px}
+.ipad .hdr{padding:16px 32px;min-height:60px}
+.homet{display:none}
+.ipad .scr{padding:26px 32px}
+.ipad .ptabs{padding-left:16px}
+.ipad .ptab{flex:none;padding:15px 22px 15px 16px;font-size:12px}
+.ipad .qgrid{display:flex;flex-direction:column;gap:10px}
+.ipad .qcell{flex-direction:row;align-items:center;padding:13px 15px;min-height:0;font-size:14px;gap:10px}
+.ipad .qcell .ic{width:21px;height:21px}
+.ipad .card .thumb{width:56px;height:56px}
+.ipad .card .ministaff{width:30px;height:27px}
+.ipad .card .rtitle{font-size:16px}
+.ipad .card .rsub{font-size:12px}
+.ipad .card{padding:18px;gap:13px}
+.ipad .homeRecentRow .thumb,.ipad .rowbtn .thumb{width:52px;height:52px}
+.ipad .rowbtn .ministaff{width:28px;height:25px}
+.ipad .rowbtn{padding:15px 0}
+.ipad .rowbtn .rtitle{font-size:15px}
+.ipad .rowbtn .rsub{font-size:12px}
+.ipad .cellgrid{grid-template-columns:repeat(4,1fr)}
+.ipad .cell.bb{border-bottom:0}
+.ipad .cell{border-right:1px solid var(--color-divider)}
+.ipad .cell:last-child{border-right:0}
+.ipad .notegrid{grid-template-columns:repeat(6,1fr)}
+.ipad .bpmnum{font-size:88px}
+.ipad .poster{margin:-26px -32px 0;padding:32px 32px}
+.ipad .poster .ph{font-size:40px}
+.ipad .sheet{padding:32px 32px 10px}
+.ipad .toolbar{display:flex;border-top:2px solid var(--color-divider);padding-left:16px}
+.ipad .tool{flex-direction:row;align-items:center;gap:8px;padding:11px 18px 11px 14px;font-size:10px}
+.ipad .actbar{padding:12px 32px}
+.ipad .toast{left:32px;right:auto;width:400px;bottom:84px}
+
+/* ── header ── */
+.hdr{display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:2px solid var(--color-divider);flex:none;min-height:46px}
+.brand{font-family:var(--font-heading);font-weight:800;font-size:14px;letter-spacing:.05em}
+.bdot{color:var(--color-accent)}
+.htitle{font-family:var(--font-heading);font-weight:800;font-size:14px;line-height:1.15}
+.scr{flex:1;overflow-y:auto;padding:13px;scrollbar-width:thin}
+
+/* ── tab bar ── */
+.tabbar{display:grid;grid-template-columns:repeat(5,1fr);border-top:2px solid var(--color-divider);flex:none;background:var(--color-bg);gap:0}
+.titem{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:6px 2px 7px 6px;background:none;border:0;font-family:var(--font-heading);font-weight:600;font-size:8px;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;color:var(--color-neutral-600)}
+.titem:hover{background:color-mix(in srgb,var(--color-text) 6%,transparent)}
+.titem.on{color:var(--color-accent-700);box-shadow:inset 0 2px 0 var(--color-accent)}
+
+/* ── icons & icon buttons ── */
+.ic{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ic16{width:16px;height:16px}
+.iconbtn{display:grid;place-items:center;width:34px;height:34px;background:none;border:0;cursor:pointer;color:var(--color-text)}
+.iconbtn:hover{background:color-mix(in srgb,var(--color-text) 7%,transparent)}
+.iconbtn.on{color:var(--color-accent-700);box-shadow:inset 0 -2px 0 var(--color-accent)}
+
+/* ── lists & rows ── */
+.kickrow{display:flex;align-items:baseline;margin:22px 0 6px}
+.kick{font-family:var(--font-heading);font-weight:800;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700);margin:0}
+.seeall{margin-left:auto;color:var(--color-accent-700);cursor:pointer;background:none;border:0;font-family:var(--font-heading);font-weight:800;font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:0}
+.rowbtn{display:flex;align-items:center;gap:12px;width:100%;padding:12px 0;background:none;border:0;border-bottom:1px solid var(--color-divider);font:inherit;text-align:left;cursor:pointer;color:inherit}
+.rowbtn:hover{background:color-mix(in srgb,var(--color-text) 5%,transparent)}
+.rtitle{font-family:var(--font-heading);font-weight:600;font-size:12px;line-height:1.25}
+.rsub{font-size:10px;color:var(--color-neutral-600)}
+.chev{color:var(--color-neutral-500)}
+.thumb{width:38px;height:38px;flex:none;display:grid;place-items:center;background:var(--color-surface);border:1px solid var(--color-divider)}
+.ministaff{width:20px;height:18px;background:repeating-linear-gradient(to bottom,var(--color-neutral-600) 0 1px,transparent 1px 5px)}
+
+/* ── quick access grid ── */
+.qgrid{display:flex;flex-direction:column;gap:6px}
+.qcell{display:flex;flex-direction:row;align-items:center;gap:8px;padding:9px 10px;border:1px solid var(--color-divider);background:none;font-family:var(--font-heading);font-weight:600;font-size:11px;cursor:pointer;color:inherit}
+.qcell .ic{width:16px;height:16px}
+.qcell:hover{border-color:var(--color-accent);color:var(--color-accent-700)}
+
+/* ── poster / cells (home variants) ── */
+.poster{background:var(--color-accent);color:#fff;padding:28px 16px;margin:-16px -16px 0}
+.poster .ph{font-size:34px;letter-spacing:-.02em;line-height:1.04;margin:0 0 10px;color:#fff}
+.poster .pm{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin:0;opacity:.92}
+.cellgrid{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--color-divider);margin-top:10px}
+.cell{padding:12px;display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-height:128px}
+.cell.br{border-right:1px solid var(--color-divider)}
+.cell.bb{border-bottom:1px solid var(--color-divider)}
+.bignum{font-family:var(--font-heading);font-weight:800;font-size:26px;line-height:1;letter-spacing:-.02em}
+.bpmnum{font-family:var(--font-heading);font-weight:800;font-size:64px;line-height:.95;letter-spacing:-.03em}
+
+/* ── metronome / practice controls ── */
+.slider{width:100%;accent-color:var(--color-accent);height:22px;margin:14px 0 4px}
+.dots{display:flex;gap:8px;margin:10px 0 4px}
+.dot2{width:14px;height:14px;border:1.5px solid var(--color-neutral-500)}
+.dot2.acc{border-color:var(--color-text)}
+.dot2.hit{background:var(--color-accent);border-color:var(--color-accent)}
+.setrow{display:flex;align-items:center;gap:8px;width:100%;padding:13px 0;background:none;border:0;border-bottom:1px solid var(--color-divider);font:inherit;font-size:13px;cursor:pointer;color:inherit;text-align:left}
+.setrow:hover{background:color-mix(in srgb,var(--color-text) 5%,transparent)}
+.setval{margin-left:auto;color:var(--color-neutral-700);font-family:var(--font-heading);font-weight:600;font-size:12px}
+
+/* ── practice/learn tabs ── */
+.ptabs{display:flex;border-bottom:2px solid var(--color-divider);flex:none}
+.ptab{flex:1;padding:11px 4px 11px 12px;text-align:left;background:none;border:0;font-family:var(--font-heading);font-weight:600;font-size:10px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;color:var(--color-neutral-600)}
+.ptab:hover{color:var(--color-text)}
+.ptab.on{color:var(--color-accent-700);box-shadow:inset 0 -2px 0 var(--color-accent)}
+
+/* ── sheet viewer ── */
+.sheet{position:relative;padding:30px 16px 10px;cursor:crosshair}
+.sys{height:41px;background:repeating-linear-gradient(to bottom,var(--color-neutral-800) 0 1px,transparent 1px 10px);position:relative;margin-bottom:34px}
+.msr{position:absolute;top:-15px;left:0;font-size:9px;color:var(--color-neutral-600)}
+.mark{position:absolute;transform:translate(-50%,-50%);color:var(--color-accent-700);font-family:var(--font-heading);font-weight:800;font-size:13px;pointer-events:none}
+.ink{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.ovpanel{display:flex;align-items:center;gap:10px;padding:8px 16px;border-bottom:1px solid var(--color-divider);background:var(--color-surface);flex:none}
+.ovbpm{font-family:var(--font-heading);font-weight:800;font-size:20px}
+.ovbar{position:relative;height:24px;width:80px;border:1px solid var(--color-divider);background:var(--color-bg)}
+.ovmid{position:absolute;left:50%;top:0;bottom:0;width:2px;background:var(--color-divider)}
+.ovneedle{position:absolute;top:0;bottom:0;width:2px;background:var(--color-accent);transition:left .35s}
+.toolbar{display:grid;grid-template-columns:repeat(4,1fr);border-top:2px solid var(--color-divider);flex:none}
+.tool{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:8px 2px 8px 10px;background:none;border:0;font-size:8.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;font-family:var(--font-heading);cursor:pointer;color:var(--color-neutral-600)}
+.tool:hover{color:var(--color-text)}
+.tool.on{color:var(--color-accent-700);box-shadow:inset 0 2px 0 var(--color-accent)}
+.actbar{display:flex;gap:8px;padding:10px 16px;border-top:1px solid var(--color-divider);flex:none}
+
+/* ── misc components ── */
+.avatar{width:52px;height:52px;flex:none;display:grid;place-items:center;background:var(--color-accent-200);color:var(--color-accent-800);font-family:var(--font-heading);font-weight:800;font-size:17px}
+.avatar.sm{width:40px;height:40px;font-size:13px}
+.stars{color:var(--color-accent-700);font-size:10px;letter-spacing:2px}
+.banner{background:var(--color-surface);padding:10px 12px;font-size:12px;margin-top:16px}
+.wave{height:40px;margin:14px 0;background:repeating-linear-gradient(to right,var(--color-accent) 0 2px,transparent 2px 6px)}
+.wave.short{height:18px;margin:0 0 14px;opacity:.45}
+.rdot{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--color-divider);flex:none}
+.chk{width:16px;height:16px;border:1.5px solid var(--color-divider);margin-left:auto;flex:none}
+.chk.on{background:var(--color-accent);border-color:var(--color-accent);box-shadow:inset 0 0 0 3px var(--color-bg)}
+.rdot.on{border-color:var(--color-accent);background:var(--color-accent);box-shadow:inset 0 0 0 3px var(--color-bg)}
+
+/* ── tuner gauge ── */
+.gauge{position:relative;width:300px;height:160px;margin:18px auto 0;overflow:hidden}
+.garc{position:absolute;inset:0 0 -140px;border:1px solid var(--color-divider);border-radius:50%}
+.gtick{position:absolute;left:50%;bottom:10px;width:2px;height:150px;transform-origin:50% 100%;background:none}
+.gtick i{display:block;width:2px;height:10px;background:var(--color-neutral-500)}
+.gtick.big i{height:16px;background:var(--color-text)}
+.needle{position:absolute;left:50%;bottom:10px;width:2px;height:132px;margin-left:-1px;transform-origin:50% 100%;background:var(--color-accent);transition:transform .35s}
+.npivot{position:absolute;left:50%;bottom:2px;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:var(--color-text)}
+.glab{position:absolute;bottom:0;font-size:10px;color:var(--color-neutral-600)}
+
+/* ── drone / sight-reading ── */
+.notegrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.notebtn{padding:10px 0 10px 10px;border:1px solid var(--color-divider);background:none;font-family:var(--font-heading);font-weight:600;font-size:13px;cursor:pointer;text-align:left;color:inherit}
+.notebtn:hover{border-color:var(--color-accent)}
+.notebtn.on{background:var(--color-accent);color:#fff;border-color:var(--color-accent)}
+.bignote{font-family:var(--font-heading);font-weight:800;font-size:84px;line-height:1;letter-spacing:-.03em}
+
+/* ── lesson / transcription ── */
+.videobox{position:relative;height:180px;background:var(--color-neutral-800);display:flex;align-items:flex-end;justify-content:center;padding:14px;color:#fff;cursor:pointer;margin-bottom:6px}
+.videobox svg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);stroke:#fff}
+.optwrap{display:flex;flex-wrap:wrap;gap:8px;padding:10px;border-bottom:1px solid var(--color-divider);background:var(--color-surface)}
+.optbtn{padding:8px 14px;border:1px solid var(--color-divider);background:var(--color-bg);font-family:var(--font-heading);font-weight:600;font-size:12px;cursor:pointer;color:inherit;text-align:left}
+.optbtn:hover{border-color:var(--color-accent)}
+.optbtn.on{background:var(--color-accent);color:#fff;border-color:var(--color-accent)}
+
+/* ── sheet scan (browser camera) ── */
+.scanbox{border:1px solid var(--color-divider);background:var(--color-neutral-800);aspect-ratio:4 / 3;overflow:hidden;display:grid;place-items:center}
+.scanbox video,.scanbox img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* ── notation (Verovio) ── */
+.musicsheet{padding:8px 0 4px}
+.musicsheet svg{display:block;max-width:100%;height:auto}
+.musicsheet g.note{cursor:pointer}
+
+/* ── toast & progress ── */
+.toast{position:absolute;left:16px;right:16px;bottom:74px;background:var(--color-text);color:var(--color-bg);padding:10px 14px;font-size:12px;font-weight:600;z-index:9}
+.prog{height:8px;background:var(--color-neutral-300);position:relative;width:100%}
+.prog i{position:absolute;left:0;top:0;bottom:0;background:var(--color-accent)}
+a:hover{color:var(--color-accent-600)}

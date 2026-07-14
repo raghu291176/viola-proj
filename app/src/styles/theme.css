@@ -1,0 +1,33 @@
+/* ViolaHub theme — purple re-skin of the Modernist tokens.
+   Loaded AFTER modernist.css so these :root values win (as in the prototype). */
+:root {
+  --color-bg: #ffffff;
+  --color-surface: #f6f4fb;
+  --color-text: #000000;
+  --color-accent: #8674db;
+  --color-accent-2: #8674db;
+  --color-divider: color-mix(in srgb, #000 32%, transparent);
+
+  --color-accent-100: #f4f1fc;
+  --color-accent-200: #e6e0f8;
+  --color-accent-300: #d0c6f1;
+  --color-accent-400: #ab9be6;
+  --color-accent-500: #8674db;
+  --color-accent-600: #6a55c4;
+  --color-accent-700: #52409e;
+  --color-accent-800: #3c2f74;
+  --color-accent-900: #28204a;
+
+  --color-accent-2-100: #f4f1fc;
+  --color-accent-2-200: #e6e0f8;
+  --color-accent-2-300: #d0c6f1;
+  --color-accent-2-400: #ab9be6;
+  --color-accent-2-500: #8674db;
+  --color-accent-2-600: #6a55c4;
+  --color-accent-2-700: #52409e;
+  --color-accent-2-800: #3c2f74;
+  --color-accent-2-900: #28204a;
+}
+
+html, body, #root { height: 100%; }
+body { display: grid; place-items: center; background: var(--color-neutral-200); }

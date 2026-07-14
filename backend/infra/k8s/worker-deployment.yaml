@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: violahub-worker
+  labels: { app: violahub-worker }
+spec:
+  replicas: 0            # KEDA scales this from 0 on Service Bus queue depth
+  selector: { matchLabels: { app: violahub-worker } }
+  template:
+    metadata:
+      labels: { app: violahub-worker, azure.workload.identity/use: "true" }
+    spec:
+      serviceAccountName: violahub
+      # Land on the GPU (T4) pool provisioned in main.bicep.
+      nodeSelector: { workload: gpu }
+      tolerations:
+        - { key: sku, operator: Equal, value: gpu, effect: NoSchedule }
+      containers:
+        - name: worker
+          image: ${ACR_LOGIN_SERVER}/violahub-worker:latest
+          env:
+            - { name: DATABASE_URL,            valueFrom: { secretKeyRef: { name: violahub, key: database-url } } }
+            - { name: SERVICEBUS_NAMESPACE,    value: "${SERVICEBUS_NAMESPACE}" }
+            - { name: SERVICEBUS_TOPIC,        value: "analyze-standard" }
+            - { name: SERVICEBUS_SUBSCRIPTION, value: "workers" }
+            - { name: WEBPUBSUB_ENDPOINT,      value: "${WEBPUBSUB_ENDPOINT}" }
+          resources:
+            requests: { cpu: "1", memory: "4Gi", nvidia.com/gpu: "1" }
+            limits:   { cpu: "2", memory: "8Gi", nvidia.com/gpu: "1" }
