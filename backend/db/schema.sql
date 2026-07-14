@@ -5,14 +5,18 @@
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";  -- gen_random_uuid()
 
 CREATE TABLE IF NOT EXISTS users (
-    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    email       TEXT UNIQUE NOT NULL,
-    name        TEXT NOT NULL,
-    city        TEXT,
-    plan        TEXT NOT NULL DEFAULT 'Free plan'
-                    CHECK (plan IN ('Free plan', 'Subscriber')),
-    created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email         TEXT UNIQUE NOT NULL,
+    name          TEXT NOT NULL,
+    city          TEXT,
+    password_hash TEXT,                         -- bcrypt; null for SSO-only accounts
+    role          TEXT NOT NULL DEFAULT 'student'
+                      CHECK (role IN ('student', 'teacher', 'admin')),
+    plan          TEXT NOT NULL DEFAULT 'Free plan'
+                      CHECK (plan IN ('Free plan', 'Subscriber')),
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+CREATE INDEX IF NOT EXISTS users_email_idx ON users(lower(email));
 
 CREATE TABLE IF NOT EXISTS pieces (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -83,6 +87,22 @@ CREATE TABLE IF NOT EXISTS entitlements (
     plan      TEXT NOT NULL DEFAULT 'Free plan',
     features  JSONB NOT NULL DEFAULT '{}'      -- {courses, transcription, ai_markup, ai_feedback}
 );
+
+-- Teacher assessments — the labeled training data (technique moat). Owned by the
+-- assessing teacher; `consent` gates use in model training.
+CREATE TABLE IF NOT EXISTS assessments (
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    teacher_id    UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    student_name  TEXT NOT NULL,
+    level         TEXT,
+    piece_title   TEXT,
+    recording_id  UUID REFERENCES recordings(id) ON DELETE SET NULL,
+    grades        JSONB NOT NULL DEFAULT '{}',   -- {Intonation:1..5, Bowing:.., Vibrato:.., ...}
+    notes         TEXT,
+    consent       BOOLEAN NOT NULL DEFAULT false,
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS assessments_teacher_idx ON assessments(teacher_id, created_at DESC);
 
 -- Community publishing is public-readable, owner-writable (policy in rls.sql).
 CREATE TABLE IF NOT EXISTS community_uploads (

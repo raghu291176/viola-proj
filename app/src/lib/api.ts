@@ -10,9 +10,35 @@ export function apiEnabled(): boolean {
   return BASE.length > 0;
 }
 
+const TOKEN_KEY = 'violahub_token';
+
 function token(): string {
   return import.meta.env.VITE_API_TOKEN
-    ?? (typeof localStorage !== 'undefined' ? localStorage.getItem('violahub_token') ?? '' : '');
+    ?? (typeof localStorage !== 'undefined' ? localStorage.getItem(TOKEN_KEY) ?? '' : '');
+}
+
+export function authToken(): string {
+  return typeof localStorage !== 'undefined' ? localStorage.getItem(TOKEN_KEY) ?? '' : '';
+}
+
+export function setAuthToken(t: string | null): void {
+  if (typeof localStorage === 'undefined') return;
+  if (t) localStorage.setItem(TOKEN_KEY, t);
+  else localStorage.removeItem(TOKEN_KEY);
+}
+
+export interface AuthResult { token: string; user_id: string; name: string; role: string }
+
+export async function register(email: string, password: string, name: string, role: string): Promise<AuthResult> {
+  return req<AuthResult>('/api/v1/auth/register', {
+    method: 'POST', body: JSON.stringify({ email, password, name, role }),
+  });
+}
+
+export async function login(email: string, password: string): Promise<AuthResult> {
+  return req<AuthResult>('/api/v1/auth/login', {
+    method: 'POST', body: JSON.stringify({ email, password }),
+  });
 }
 
 async function req<T>(path: string, init?: RequestInit): Promise<T> {

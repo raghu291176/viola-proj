@@ -27,6 +27,15 @@ async def close_pool() -> None:
 
 
 @asynccontextmanager
+async def conn() -> AsyncIterator[asyncpg.Connection]:
+    """A plain pooled connection with NO RLS context — only for auth (register/
+    login) via the SECURITY DEFINER functions, which are the sole unpoliced path."""
+    assert _pool is not None, "pool not initialised"
+    async with _pool.acquire() as c:
+        yield c
+
+
+@asynccontextmanager
 async def user_tx(user_id: str) -> AsyncIterator[asyncpg.Connection]:
     """Yield a connection bound to `user_id` via RLS, inside a transaction."""
     assert _pool is not None, "pool not initialised"

@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { useStore } from './store';
 import { stopAllAudio } from './lib/audio';
 import { liveEngine } from './lib/realtime';
+import { apiEnabled } from './lib/api';
+import { Auth } from './screens/Auth';
 import { TabBar } from './components/TabBar';
 import { Toast } from './components/Toast';
 import { Home } from './screens/Home';
@@ -40,8 +42,12 @@ export function App() {
   const device = useStore((s) => s.device);
   const setDevice = useStore((s) => s.setDevice);
   const sub = useStore((s) => s.sub);
+  const authed = useStore((s) => s.authed);
 
   useEffect(() => () => { stopAllAudio(); liveEngine.stop(); }, []);
+
+  // Gate behind login only when a backend is configured (offline preview runs free).
+  const needsAuth = apiEnabled() && !authed;
 
   return (
     <div className="col ac gap12" style={{ padding: 24 }}>
@@ -57,8 +63,14 @@ export function App() {
       </div>
 
       <div className={`phone${device === 'ipad' ? ' ipad' : ''}`}>
-        <ActiveScreen />
-        {sub !== 'sheet' && <TabBar />}
+        {needsAuth ? (
+          <Auth />
+        ) : (
+          <>
+            <ActiveScreen />
+            {sub !== 'sheet' && <TabBar />}
+          </>
+        )}
         <Toast />
       </div>
     </div>

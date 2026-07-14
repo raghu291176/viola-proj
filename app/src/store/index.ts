@@ -5,7 +5,10 @@ import { persist } from 'zustand/middleware';
 import { TS, NOTES, KEYS } from '../lib/constants';
 import { FEEDBACK_BANKS } from '../lib/data';
 import { metronome, drone, tuner, setReferenceA, type MetParams } from '../lib/audio';
-import { apiEnabled, runFeedbackAnalysis, uploadRecording, submitAssessment } from '../lib/api';
+import {
+  apiEnabled, runFeedbackAnalysis, uploadRecording, submitAssessment,
+  authToken, setAuthToken, login as apiLogin, register as apiRegister,
+} from '../lib/api';
 import { startMicRecording, stopMicRecording, cancelMicRecording, recordingSupported } from '../lib/recorder';
 import { liveEngine, type LiveCue } from '../lib/realtime';
 import type {
@@ -106,6 +109,12 @@ export interface StoreState {
   // teacher assessment (data-collection flywheel)
   assess: AssessDraft;
   assessCount: number;
+  // auth
+  authed: boolean;
+  authName: string;
+  authRole: string;
+  authError: string;
+  authBusy: boolean;
 
   // ── derived ──
   subbed: () => boolean;
@@ -194,6 +203,12 @@ export interface StoreState {
   startAssessRec: () => void;
   stopAssessRec: () => void;
   saveAssessment: () => void;
+
+  // ── auth ──
+  login: (email: string, password: string) => void;
+  register: (email: string, password: string, name: string, role: string) => void;
+  logout: () => void;
+  clearAuthError: () => void;
 }
 
 export const useStore = create<StoreState>()(
@@ -255,6 +270,7 @@ export const useStore = create<StoreState>()(
           grades: {}, notes: '', consent: false, recState: 'idle', recSecs: 0, verdicts: [],
         },
         assessCount: 0,
+        authed: authToken() !== '', authName: '', authRole: '', authError: '', authBusy: false,
 
         subbed: () => get().plan !== 'Free plan',
         beats: () => beatsOf(get().tsIdx),
@@ -516,6 +532,22 @@ export const useStore = create<StoreState>()(
           });
           s.showToast(`Assessment saved · ${n} collected`);
         },
+
+        // auth
+        login: (email, password) => {
+          set({ authBusy: true, authError: '' });
+          apiLogin(email, password)
+            .then((r) => { setAuthToken(r.token); set({ authed: true, authName: r.name, authRole: r.role, authBusy: false }); })
+            .catch(() => set({ authError: 'Invalid email or password.', authBusy: false }));
+        },
+        register: (email, password, name, role) => {
+          set({ authBusy: true, authError: '' });
+          apiRegister(email, password, name, role)
+            .then((r) => { setAuthToken(r.token); set({ authed: true, authName: r.name, authRole: r.role, authBusy: false }); })
+            .catch(() => set({ authError: 'Could not register — that email may already be in use.', authBusy: false }));
+        },
+        logout: () => { setAuthToken(null); set({ authed: false, authName: '', authRole: '' }); },
+        clearAuthError: () => set({ authError: '' }),
       };
     },
     {
