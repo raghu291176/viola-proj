@@ -34,8 +34,8 @@ export function Profile() {
       </div>
       <div className="scr">
         <div className="fx ac gap12 mt8">
-          <div className="avatar">E</div>
-          <div className="f1"><div className="htitle">Emily</div><div className="rsub">Violist · Boston, MA</div></div>
+          <div className="avatar">N</div>
+          <div className="f1"><div className="htitle">Nishta</div><div className="rsub">Violist · Boston, MA</div></div>
           <span className="tag tag-accent">{plan}</span>
         </div>
         {isFree && <button className="btn btn-secondary btn-block mt16" onClick={upgrade}>Subscribe — unlock all courses</button>}

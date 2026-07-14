@@ -25,7 +25,7 @@ export function Home() {
 
       {hv === 'a' && (
         <div className="scr">
-          <h3 className="m0" style={{ fontSize: 24 }}>Good morning, Emily.</h3>
+          <h3 className="m0" style={{ fontSize: 24 }}>Good morning, Nishta.</h3>
           <p className="rsub mt8">Let's make beautiful music today.</p>
           <div className="kickrow"><p className="kick">Continue practicing</p></div>
           <div className="card elev-sm">
@@ -61,7 +61,7 @@ export function Home() {
         <div className="scr">
           <div className="poster">
             <p className="pm">Tuesday · 7:40 AM</p>
-            <h2 className="ph">Good morning, Emily.</h2>
+            <h2 className="ph">Good morning, Nishta.</h2>
             <p className="pm">6-day streak · 4h 20m this week</p>
           </div>
           <button className="rowbtn" onClick={openSheet} style={{ paddingTop: 18 }}>
@@ -90,7 +90,7 @@ export function Home() {
 
       {hv === 'c' && (
         <div className="scr">
-          <h3 className="m0" style={{ fontSize: 24 }}>Good morning, Emily.</h3>
+          <h3 className="m0" style={{ fontSize: 24 }}>Good morning, Nishta.</h3>
           <p className="rsub mt8">Tuesday · week 24</p>
           <div className="cellgrid">
             <div className="cell br bb">
