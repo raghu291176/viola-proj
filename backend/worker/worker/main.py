@@ -40,6 +40,7 @@ def handle(raw: str, conn) -> None:
         blob_url=msg["blob_url"],
         kind=msg.get("kind", "feedback"),
         skill=msg.get("skill", "reading"),
+        level=msg.get("level", "intermediate"),
         reference_blob_url=msg.get("reference_blob_url"),
     )
     print(f"[worker] analyzing recording {job.recording_id} ({job.kind}/{job.skill}) for {job.user_id}")

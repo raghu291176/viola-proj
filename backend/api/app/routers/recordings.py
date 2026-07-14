@@ -22,16 +22,20 @@ from ..config import settings
 router = APIRouter(prefix="/recordings", tags=["recordings"])
 
 
+Kind = Literal["feedback", "transcription", "omr"]
+
+
 class UploadUriRequest(BaseModel):
-    kind: Literal["feedback", "transcription"] = "feedback"
+    kind: Kind = "feedback"
     skill: str = "reading"
     lesson_id: str | None = None
 
 
 class AnalyzeRequest(BaseModel):
     blob_url: str
-    kind: Literal["feedback", "transcription"] = "feedback"
+    kind: Kind = "feedback"
     skill: str = "reading"
+    level: str = "intermediate"
     reference_blob_url: str | None = None
 
 
@@ -65,6 +69,7 @@ async def analyze(recording_id: str, body: AnalyzeRequest, user: str = Depends(c
         "blob_url": body.blob_url,
         "kind": body.kind,
         "skill": body.skill,
+        "level": body.level,
         "reference_blob_url": body.reference_blob_url,
     })
     return {"recording_id": recording_id, "status": "processing"}

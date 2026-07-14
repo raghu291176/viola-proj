@@ -14,7 +14,8 @@ class Settings(BaseSettings):
     storage_container: str = "recordings"
 
     servicebus_namespace: str = "violahub.servicebus.windows.net"
-    servicebus_topic: str = "recordings"
+    servicebus_topic: str = "analyze-standard"        # T4 pool: feedback / pitch / DTW
+    servicebus_topic_heavy: str = "analyze-heavy"     # A10G/A100 pool: transcription / OMR
 
     webpubsub_endpoint: str = ""            # e.g. https://violahub.webpubsub.azure.com
     webpubsub_hub: str = "violahub"

@@ -1,0 +1,22 @@
+# KEDA scaler for the heavy (A10G) pool — transcription/OMR. Scale-to-zero; a
+# smaller max than standard because these jobs are rarer and pricier.
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: violahub-worker-heavy
+spec:
+  scaleTargetRef:
+    name: violahub-worker-heavy
+  minReplicaCount: 0
+  maxReplicaCount: 4
+  cooldownPeriod: 180
+  pollingInterval: 20
+  triggers:
+    - type: azure-servicebus
+      metadata:
+        topicName: analyze-heavy
+        subscriptionName: workers
+        namespace: ${SERVICEBUS_NAMESPACE_SHORT}
+        messageCount: "2"          # heavy jobs — ~1 replica per 2 queued
+      authenticationRef:
+        name: violahub-servicebus-auth

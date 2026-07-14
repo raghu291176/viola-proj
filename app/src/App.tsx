@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useStore } from './store';
 import { stopAllAudio } from './lib/audio';
+import { liveEngine } from './lib/realtime';
 import { TabBar } from './components/TabBar';
 import { Toast } from './components/Toast';
 import { Home } from './screens/Home';
@@ -38,7 +39,7 @@ export function App() {
   const setDevice = useStore((s) => s.setDevice);
   const sub = useStore((s) => s.sub);
 
-  useEffect(() => () => stopAllAudio(), []);
+  useEffect(() => () => { stopAllAudio(); liveEngine.stop(); }, []);
 
   return (
     <div className="col ac gap12" style={{ padding: 24 }}>

@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS ai_feedback (
     strengths     TEXT[] NOT NULL,
     work          TEXT[] NOT NULL,
     metrics       JSONB NOT NULL DEFAULT '{}',
+    note_verdicts JSONB NOT NULL DEFAULT '[]',  -- [{noteId, kind, detail, cents?, timing_ms?}] — recolors Verovio notes
     created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS ai_feedback_rec_idx ON ai_feedback(recording_id);

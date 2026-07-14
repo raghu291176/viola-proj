@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from .models.feedback import analyze
+from .models import matching
 from .models.transcribe import transcribe, transcription_to_musicxml
 
 
@@ -22,9 +23,10 @@ class AnalyzeJob:
     recording_id: str
     user_id: str
     blob_url: str                 # the uploaded WAV
-    kind: str                     # "feedback" | "transcription"
+    kind: str                     # "feedback" | "transcription" | "omr"
     skill: str = "reading"
-    reference_blob_url: str | None = None  # reference score MIDI, when available
+    level: str = "intermediate"   # judging strictness (ARCHITECTURE.md §4.4)
+    reference_blob_url: str | None = None  # reference score (MusicXML), when available
 
 
 def _download(blob_url: str, dest: Path) -> None:
@@ -46,20 +48,35 @@ def run(job: AnalyzeJob, conn) -> dict[str, Any]:
         audio = Path(d) / "recording.wav"
         _download(job.blob_url, audio)
 
-        ref_path = None
+        ref_musicxml: str | None = None
         if job.reference_blob_url:
-            ref_path = Path(d) / "reference.mid"
+            ref_path = Path(d) / "reference.musicxml"
             _download(job.reference_blob_url, ref_path)
+            ref_musicxml = ref_path.read_text(encoding="utf-8")
 
         if job.kind == "transcription":
             tr = transcribe(audio)
             musicxml = transcription_to_musicxml(tr.midi_bytes)
             result = {"type": "transcription", **tr.summary(), "musicxml_len": len(musicxml)}
             _persist_transcription(conn, job, musicxml)
+        elif job.kind == "omr":
+            from .models.omr import to_musicxml
+            musicxml = to_musicxml(audio)   # `audio` here is the uploaded PDF/image blob
+            result = {"type": "omr", "musicxml_len": len(musicxml)}
+            _persist_transcription(conn, job, musicxml)
         else:
-            fb = analyze(audio, skill=job.skill, reference_midi_path=ref_path)
-            result = {"type": "feedback", **fb.to_dict()}
-            _persist_feedback(conn, job, fb)
+            # Aggregate technique feedback (strengths/work) …
+            fb = analyze(audio, skill=job.skill)
+            # … plus per-note sheet-vs-audio matching when a reference score exists.
+            note_verdicts: list[dict[str, Any]] = []
+            score = fb.score
+            if ref_musicxml:
+                m = matching.analyze(audio, ref_musicxml, level=job.level)
+                note_verdicts = m["note_verdicts"]
+                if m["total"]:
+                    score = m["score"]   # match score is the authoritative number when we have a score
+            result = {"type": "feedback", **fb.to_dict(), "score": score, "note_verdicts": note_verdicts}
+            _persist_feedback(conn, job, fb, score, note_verdicts)
 
     return result
 
@@ -71,14 +88,14 @@ def _set_user(conn, user_id: str) -> None:
     conn.execute("SELECT set_config('app.current_user_id', %s, true)", (user_id,))
 
 
-def _persist_feedback(conn, job: AnalyzeJob, fb) -> None:
+def _persist_feedback(conn, job: AnalyzeJob, fb, score: int, note_verdicts: list[dict[str, Any]]) -> None:
     _set_user(conn, job.user_id)
     conn.execute(
         """
-        INSERT INTO ai_feedback (recording_id, user_id, score, strengths, work, metrics)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO ai_feedback (recording_id, user_id, score, strengths, work, metrics, note_verdicts)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
         """,
-        (job.recording_id, job.user_id, fb.score, fb.strengths, fb.work, _json(fb.metrics)),
+        (job.recording_id, job.user_id, score, fb.strengths, fb.work, _json(fb.metrics), _json(note_verdicts)),
     )
     conn.execute(
         "UPDATE recordings SET status = 'completed' WHERE id = %s AND user_id = %s",

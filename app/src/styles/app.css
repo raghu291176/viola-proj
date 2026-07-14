@@ -166,6 +166,11 @@
 .optbtn:hover{border-color:var(--color-accent)}
 .optbtn.on{background:var(--color-accent);color:#fff;border-color:var(--color-accent)}
 
+/* ── notation (Verovio) ── */
+.musicsheet{padding:8px 0 4px}
+.musicsheet svg{display:block;max-width:100%;height:auto}
+.musicsheet g.note{cursor:pointer}
+
 /* ── toast & progress ── */
 .toast{position:absolute;left:16px;right:16px;bottom:74px;background:var(--color-text);color:var(--color-bg);padding:10px 14px;font-size:12px;font-weight:600;z-index:9}
 .prog{height:8px;background:var(--color-neutral-300);position:relative;width:100%}

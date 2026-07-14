@@ -301,6 +301,79 @@ sequenceDiagram
 
 ---
 
+## 4. AI/ML — models, tiers, and the matching engine
+
+### 4.1 Latency tiers (real-time is the default; async is the exception)
+
+Real-time ≠ expensive GPU. Most live viola feedback is classical DSP + online alignment that runs on-device or on cheap CPU; GPU is reserved for genuinely heavy, non-interactive jobs so it can idle at zero.
+
+| Tier | Where | Latency | Cost | Workloads |
+| --- | --- | --- | --- | --- |
+| **T1 · on-device** | `app/src/lib/realtime.ts` — Web Audio + tiny WASM/ONNX (CREPE-tiny) + online DTW | <50 ms | free | live intonation cue, tempo/rhythm drift vs. metronome, score-following ("you're on m.12") |
+| **T2 · warm stream** | WebSocket → warm CPU/GPU pool on AKS | 100–300 ms | pay for warm capacity | live technique, short-excerpt Soundcheck returned the instant they stop |
+| **T3 · async batch** | Blob → Service Bus → KEDA scale-to-zero GPU | seconds–min | ~zero idle | full-song transcription, OMR, deep post-session report |
+
+Push everything possible into **T1** (free, instant). The tuner's autocorrelation pitch detector already runs client-side — that primitive powers live tuning/tempo cues today. The store exposes a `liveCue` selector fed by the audio graph.
+
+### 4.2 Two-pool GPU topology (T3)
+
+| Pool | VM / GPU | Workloads | Scaling |
+| --- | --- | --- | --- |
+| **Standard** | `NCas_T4_v3` (T4, 16 GB) | CREPE/pYIN pitch, librosa features, DTW + Soundcheck scoring, live technique (T2) | warm min-replicas at peak hours |
+| **Heavy** | `NVadsA10_v5` (A10G) default · `NDams_A100_v4` (A100) opt-in | Basic-Pitch AMT, oemer OMR CV | scale-to-zero |
+
+Two Service Bus topics (`analyze-standard`, `analyze-heavy`), each with its own KEDA `ScaledObject`; `POST /recordings/analyze` classifies the job and publishes to the right topic. Workers pin to a pool via `nodeSelector` + `tolerations`. A100 is opt-in per model in AML — A10G is the default heavy pool.
+
+### 4.3 Model stack — commercial-safe, pretrained, real now
+
+ViolaHub is a paid product, so every model is permissively licensed (no non-commercial, no AGPL). Pretrained-real-now, upgradeable to custom AML-trained models later.
+
+| Feature | Model (license) | Tier | Real now? |
+| --- | --- | --- | --- |
+| Pitch / intonation | CREPE / torchcrepe (MIT); pYIN via librosa (ISC) | T1 + T3 | ✅ cents error per note |
+| Onset / tempo | **librosa** onset (ISC) — *not* madmom | T1 | ✅ timing deviation ms |
+| Alignment + match score | DTW via synctoolbox/librosa (MIT/ISC) | T1 online / T3 full | ✅ normalized cost → score |
+| Transcription (solo) | **Basic Pitch** (Apache-2.0) → MIDI → music21 (BSD) → MusicXML | T3 | ✅ real notation |
+| OMR (PDF→sheet) | **oemer** (MIT) — *not* homr/Audiveris (AGPL) | T3 | ✅ MusicXML |
+| Source separation | Demucs v4 (MIT) | T3 | ✅ solo / viola-vs-piano only |
+| Technique-quality backbone | PANNs / PaSST — *not* MERT (CC-BY-NC) | T2 | ⚠️ **data-gated** |
+| Notation render | **Verovio** (LGPL, WASM) | client | ✅ SVG w/ note `xml:id` |
+
+**Honesty caveat (data-gated).** Pitch/timing/note-accuracy ship now — real, no training. **Vibrato** is DSP-doable (detect 4–7 Hz FM on the f0 curve). **Bowing scratchiness / shift cleanliness** have no off-the-shelf model — they need a PANNs/PaSST head fine-tuned on a **labeled viola dataset that doesn't exist publicly**; that dataset (recordings + aligned scores + teacher labels) is the real cost/moat, not the GPUs. Product must be honest: early feedback = intonation/rhythm/notes; bowing/vibrato/shifting depth arrives as labels are collected.
+
+### 4.4 Sheet-music matching — the teaching core
+
+The point of a teaching app is to **point at the exact wrong note**. Three linked problems, one representation:
+
+```
+MusicXML (canonical, per piece)
+   ├─► Verovio (WASM) ──► rendered staff, every note an SVG element with xml:id  (what the user sees)
+   └─► music21 ──► reference events {noteId, midi, onsetBeat, durationBeats, measure} ─┐
+                                                                                       ├─► DTW align ─► per-note verdict
+played audio ─► CREPE pitch + librosa onset  (Basic-Pitch for double-stops) ─► perf events ─┘        │
+                                                                                                     ▼
+                                          {noteId → verdict} ─► recolor that exact SVG note + text feedback
+```
+
+1. **Encoding — MusicXML is canonical** (§ memory `violahub-notation`). Ground truth for pitch/onset/duration/key and, crucially, addressable note IDs.
+2. **Performance → comparable events.** Reference parsed by music21 → ordered expected events. Performance estimated: single line → CREPE f0 + onset segmentation; **double stops → Basic Pitch** (polyphonic) so chords aren't collapsed. Route by what the MusicXML expects.
+3. **Align + threshold.** Can't compare index-by-index (students rush/drag/add/drop). **DTW** (offline full report) / **online DTW** (real-time score-follow) maps performed↔reference and surfaces gaps (missed) and insertions (extra). Per-note verdict against a **level policy**:
+
+| Dimension | Measure | Default threshold (by level) |
+| --- | --- | --- |
+| Wrong note | pitch-class+octave mismatch after alignment | exact |
+| Intonation | cents deviation from expected | beginner ±30¢ · intermediate ±20¢ · advanced ±10–15¢ |
+| Timing | onset error vs expected beat (tempo-normalized) | ±15–20% of a beat |
+| Duration | held length vs notated | ±25% of notated |
+| Missing / extra | unaligned reference / performance event | flagged |
+
+Thresholds are a policy keyed to lesson skill + user level — not hardcoded. **Match score = 100 × (aligned notes within threshold / total reference notes)**, dimension-weighted.
+4. **Point at the note.** Each verdict carries the reference `noteId`; Verovio recolors that exact SVG node (green in-tune/in-time, red sharp/flat/late/wrong) and the text says "m.2 beat 3: A4 played +24¢ sharp." Live (T1) colors the current note as they play; the deep report (T2/T3) colors the whole excerpt.
+
+The client stores note-id→verdict maps; `lib/realtime.ts` produces them on-device for T1, and the async worker returns them for T3 — same shape, so the Sheet/Lesson UI is identical either way.
+
+---
+
 ## Appendix — source of truth
 - Visual + behavioral spec: `../ViolaHub Prototype.dc.html` (markup + `renderVals`/audio logic) and `../support.js` (DC runtime, atomic utilities).
 - Design system: `../_ds/modernist-*/styles.css` + `readme.md` (Modernist), re-skinned purple for ViolaHub.

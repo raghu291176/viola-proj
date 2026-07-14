@@ -21,7 +21,7 @@ spec:
           env:
             - { name: DATABASE_URL,            valueFrom: { secretKeyRef: { name: violahub, key: database-url } } }
             - { name: SERVICEBUS_NAMESPACE,    value: "${SERVICEBUS_NAMESPACE}" }
-            - { name: SERVICEBUS_TOPIC,        value: "recordings" }
+            - { name: SERVICEBUS_TOPIC,        value: "analyze-standard" }
             - { name: SERVICEBUS_SUBSCRIPTION, value: "workers" }
             - { name: WEBPUBSUB_ENDPOINT,      value: "${WEBPUBSUB_ENDPOINT}" }
           resources:

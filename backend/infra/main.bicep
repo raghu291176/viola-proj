@@ -45,13 +45,24 @@ resource sb 'Microsoft.ServiceBus/namespaces@2022-10-01-preview' = {
   location: location
   sku: { name: 'Standard', tier: 'Standard' }
 }
-resource sbTopic 'Microsoft.ServiceBus/namespaces/topics@2022-10-01-preview' = {
+// Two topics → two GPU pools (ARCHITECTURE.md §4.2): each drains via its own KEDA scaler.
+resource sbTopicStd 'Microsoft.ServiceBus/namespaces/topics@2022-10-01-preview' = {
   parent: sb
-  name: 'recordings'
+  name: 'analyze-standard'   // T4 pool: feedback / pitch / DTW
+  properties: { enablePartitioning: false, requiresDuplicateDetection: false }
+}
+resource sbSubStd 'Microsoft.ServiceBus/namespaces/topics/subscriptions@2022-10-01-preview' = {
+  parent: sbTopicStd
+  name: 'workers'
+  properties: { maxDeliveryCount: 5, deadLetteringOnMessageExpiration: true }
+}
+resource sbTopicHeavy 'Microsoft.ServiceBus/namespaces/topics@2022-10-01-preview' = {
+  parent: sb
+  name: 'analyze-heavy'      // A10G/A100 pool: transcription / OMR
   properties: { enablePartitioning: false }
 }
-resource sbSub 'Microsoft.ServiceBus/namespaces/topics/subscriptions@2022-10-01-preview' = {
-  parent: sbTopic
+resource sbSubHeavy 'Microsoft.ServiceBus/namespaces/topics/subscriptions@2022-10-01-preview' = {
+  parent: sbTopicHeavy
   name: 'workers'
   properties: { maxDeliveryCount: 5, deadLetteringOnMessageExpiration: true }
 }
@@ -114,7 +125,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
         osType: 'Linux'
       }
       {
-        name: 'gpu'
+        name: 'gpu'                    // Standard pool — T4 (feedback / pitch / DTW)
         mode: 'User'
         count: 0
         minCount: 0
@@ -124,6 +135,18 @@ resource aks 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
         osType: 'Linux'
         nodeLabels: { workload: 'gpu' }
         nodeTaints: [ 'sku=gpu:NoSchedule' ]
+      }
+      {
+        name: 'gpuheavy'               // Heavy pool — A10G (transcription / OMR); A100 opt-in per model
+        mode: 'User'
+        count: 0
+        minCount: 0
+        maxCount: 4
+        enableAutoScaling: true
+        vmSize: 'Standard_NV36ads_A10_v5' // NVIDIA A10G
+        osType: 'Linux'
+        nodeLabels: { workload: 'gpu-heavy' }
+        nodeTaints: [ 'sku=gpuheavy:NoSchedule' ]
       }
     ]
   }

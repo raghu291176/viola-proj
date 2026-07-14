@@ -7,6 +7,7 @@ import { FEEDBACK_BANKS } from '../lib/data';
 import { metronome, drone, tuner, type MetParams } from '../lib/audio';
 import { apiEnabled, runFeedbackAnalysis } from '../lib/api';
 import { startMicRecording, stopMicRecording, cancelMicRecording, recordingSupported } from '../lib/recorder';
+import { liveEngine, type LiveCue } from '../lib/realtime';
 import type {
   Device, Tab, Sub, HomeVariant, Plan, PracticeTool, AnnTool, BowDir, Browse,
   Overlay, LearnTab, TransSource, RecState, MetMenu, SrMenu,
@@ -59,6 +60,8 @@ export interface StoreState {
   heard: string | null;
   cents: number;
   hz: number;
+  // live (T1 on-device real-time)
+  liveCue: LiveCue | null;
   // drone
   droneNote: string;
   droneOct: number;
@@ -127,6 +130,10 @@ export interface StoreState {
 
   // ── tuner action ──
   toggleListen: () => void;
+
+  // ── live cue (T1) ──
+  startLiveCue: () => void;
+  stopLiveCue: () => void;
 
   // ── drone actions ──
   toggleDrone: () => void;
@@ -208,6 +215,7 @@ export const useStore = create<StoreState>()(
         annTool: 'select', bowDir: 'up', finger: '1', marks: [], strokes: [],
         bpm: 80, run: false, beat: -1, tsIdx: 2, accent: 1, soundIdx: 0, metMenu: null,
         listening: false, heard: null, cents: 0, hz: 0,
+        liveCue: null,
         droneNote: 'A', droneOct: 3, dronePlay: false,
         prTool: 'met', srMenu: null, srNum: 1, srKeyIdx: 0, srTsIdx: 2,
         srNotes: ['Quarter notes', 'Eighth notes'], srAdd: [],
@@ -312,6 +320,13 @@ export const useStore = create<StoreState>()(
             .then(() => set({ listening: true }))
             .catch(() => s.showToast('Microphone access is needed for the tuner'));
         },
+
+        // live cue (T1 on-device real-time)
+        startLiveCue: () => {
+          liveEngine.start((c) => set({ liveCue: c }))
+            .catch(() => get().showToast('Microphone access is needed for live cues'));
+        },
+        stopLiveCue: () => { liveEngine.stop(); set({ liveCue: null }); },
 
         // drone
         toggleDrone: () => {

@@ -1,7 +1,9 @@
 import type { PointerEvent as ReactPointerEvent, MouseEvent as ReactMouseEvent } from 'react';
 import { useStore } from '../store';
 import { Icon } from '../components/Icon';
+import { MusicSheet } from '../components/MusicSheet';
 import { TS } from '../lib/constants';
+import { scoreFor } from '../lib/scores';
 
 export function Sheet() {
   const piece = useStore((s) => s.piece);
@@ -101,11 +103,7 @@ export function Sheet() {
           onPointerLeave={penUp}
           style={{ touchAction: 'none' }}
         >
-          <div className="sys"><span className="msr">1</span></div>
-          <div className="sys"><span className="msr">5</span></div>
-          <div className="sys"><span className="msr">9</span></div>
-          <div className="sys"><span className="msr">13</span></div>
-          <div className="sys" style={{ marginBottom: 10 }}><span className="msr">17</span></div>
+          <MusicSheet xml={scoreFor(piece?.t)} />
           {marks.map((m, i) => (
             <span key={i} className="mark" style={{ left: `${m.x}px`, top: `${m.y}px` }}>{m.sym}</span>
           ))}

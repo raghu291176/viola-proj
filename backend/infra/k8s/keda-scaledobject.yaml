@@ -14,7 +14,7 @@ spec:
   triggers:
     - type: azure-servicebus
       metadata:
-        topicName: recordings
+        topicName: analyze-standard
         subscriptionName: workers
         namespace: ${SERVICEBUS_NAMESPACE_SHORT}   # e.g. violahub-xxxx
         messageCount: "5"                          # ~1 replica per 5 queued jobs
