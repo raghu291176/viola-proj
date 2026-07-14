@@ -1,0 +1,15 @@
+name: violahub-mir
+channels: [conda-forge]
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - azureml-inference-server-http
+      - basic-pitch==0.4.0
+      - onnxruntime-gpu==1.19.2
+      - librosa==0.10.2.post1
+      - music21==9.3.0
+      - pretty_midi==0.2.10
+      - soundfile==0.12.1
+      - oemer==0.1.7
+      - defusedxml==0.7.1

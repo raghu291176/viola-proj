@@ -23,7 +23,6 @@ import numpy as np
 
 from . import intonation
 from .thresholds import policy, Thresholds
-from .transcribe import transcribe
 
 _STEP = {"C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "A": 9, "B": 11}
 
@@ -55,6 +54,8 @@ def parse_reference(musicxml: str) -> list[RefEvent]:
     events: list[RefEvent] = []
     divisions = 1.0
     fifths = 0
+    onset = 0.0       # ABSOLUTE onset in quarter-note beats (cumulative across measures)
+    prev_onset = 0.0  # onset of the previous non-chord note (so chord notes share it)
     for measure in root.iter("measure"):
         key_el = measure.find("attributes/key/fifths")
         if key_el is not None and key_el.text:
@@ -63,8 +64,6 @@ def parse_reference(musicxml: str) -> list[RefEvent]:
             mnum = int(measure.get("number", "0"))
         except ValueError:
             mnum = 0
-        onset = 0.0  # in quarter-note beats, relative to measure start
-        prev_onset = 0.0
         for note in measure.findall("note"):
             div_el = measure.find("attributes/divisions")
             if div_el is not None and div_el.text:
@@ -95,31 +94,87 @@ def parse_reference(musicxml: str) -> list[RefEvent]:
     return events
 
 
-def _dtw_path(ref: list[int], perf: list[int]) -> list[tuple[int, int]]:
-    """Classic DTW over MIDI-pitch sequences; returns aligned (ref_i, perf_j) pairs."""
+@dataclass
+class PerfNote:
+    midi: int          # rounded pitch
+    f0: float          # median f0 over the STABLE middle of the note (Hz)
+    start: float       # seconds
+    end: float
+
+
+def _segment_notes(y, sr: int, ref_a: float) -> list[PerfNote]:
+    """Monophonic note segmentation from a pyin f0 track.
+
+    For a solo line this is far more reliable than polyphonic note detection:
+    group consecutive voiced frames of the same rounded pitch into a note, and
+    take the median f0 over the note's *stable middle* (excludes attack/release)
+    so intonation is measured where the pitch has settled.
+    """
+    import librosa
+    f0, voiced, _prob = librosa.pyin(
+        y, sr=sr, fmin=float(librosa.note_to_hz("C2")), fmax=float(librosa.note_to_hz("A6"))
+    )
+    times = librosa.times_like(f0, sr=sr)
+    notes: list[PerfNote] = []
+    cur_midi: int | None = None
+    cur_f0s: list[float] = []
+    cur_start = 0.0
+    cur_end = 0.0
+
+    def flush() -> None:
+        nonlocal cur_midi, cur_f0s
+        if cur_midi is not None and len(cur_f0s) >= 3:   # ≥ ~70 ms → reject blips
+            s = sorted(cur_f0s)
+            lo, hi = len(s) // 4, max(len(s) // 4 + 1, len(s) * 3 // 4)  # middle 50%
+            notes.append(PerfNote(cur_midi, float(np.median(s[lo:hi])), cur_start, cur_end))
+        cur_midi, cur_f0s = None, []
+
+    for i, f in enumerate(f0):
+        is_voiced = np.isfinite(f) and (bool(voiced[i]) if voiced is not None else True)
+        if not is_voiced:
+            flush()
+            continue
+        midi = int(round(69 + 12 * np.log2(f / ref_a)))
+        if cur_midi is None:
+            cur_midi, cur_f0s, cur_start, cur_end = midi, [float(f)], times[i], times[i]
+        elif midi == cur_midi:
+            cur_f0s.append(float(f)); cur_end = times[i]
+        else:
+            flush()
+            cur_midi, cur_f0s, cur_start, cur_end = midi, [float(f)], times[i], times[i]
+    flush()
+    return notes
+
+
+def _align(ref: list[int], perf: list[int]) -> list[tuple[int | None, int | None]]:
+    """Needleman-Wunsch alignment of two pitch sequences (handles missing/extra).
+
+    Returns (ref_index, perf_index) pairs; None on either side marks a gap
+    (ref-only = missing note, perf-only = extra note).
+    """
     n, m = len(ref), len(perf)
-    if n == 0 or m == 0:
-        return []
-    inf = float("inf")
-    D = np.full((n + 1, m + 1), inf)
-    D[0, 0] = 0.0
+    GAP = -2.0
+    D = np.zeros((n + 1, m + 1))
+    for i in range(n + 1):
+        D[i, 0] = i * GAP
+    for j in range(m + 1):
+        D[0, j] = j * GAP
     for i in range(1, n + 1):
         for j in range(1, m + 1):
-            cost = min(abs(ref[i - 1] - perf[j - 1]), 12)  # cap so octave errors don't dominate
-            D[i, j] = cost + min(D[i - 1, j], D[i, j - 1], D[i - 1, j - 1])
-    # Backtrack.
-    path: list[tuple[int, int]] = []
+            sub = 2.0 if ref[i - 1] == perf[j - 1] else -min(abs(ref[i - 1] - perf[j - 1]), 4)
+            D[i, j] = max(D[i - 1, j - 1] + sub, D[i - 1, j] + GAP, D[i, j - 1] + GAP)
+    pairs: list[tuple[int | None, int | None]] = []
     i, j = n, m
-    while i > 0 and j > 0:
-        path.append((i - 1, j - 1))
-        step = min(D[i - 1, j], D[i, j - 1], D[i - 1, j - 1])
-        if step == D[i - 1, j - 1]:
-            i, j = i - 1, j - 1
-        elif step == D[i - 1, j]:
-            i -= 1
+    while i > 0 or j > 0:
+        if i > 0 and j > 0:
+            sub = 2.0 if ref[i - 1] == perf[j - 1] else -min(abs(ref[i - 1] - perf[j - 1]), 4)
+            if D[i, j] == D[i - 1, j - 1] + sub:
+                pairs.append((i - 1, j - 1)); i, j = i - 1, j - 1; continue
+        if i > 0 and D[i, j] == D[i - 1, j] + GAP:
+            pairs.append((i - 1, None)); i -= 1
         else:
-            j -= 1
-    return path[::-1]
+            pairs.append((None, j - 1)); j -= 1
+    return pairs[::-1]
 
 
 def _cents(f0: float, target_midi: int, ref_a: float) -> float:
@@ -149,69 +204,56 @@ def analyze(
     if not ref:
         return {"note_verdicts": [], "score": 0, "matched": 0, "total": 0}
 
-    tr = transcribe(audio_path)
-    perf = tr.notes  # list of NoteEvent(start,end,pitch_midi,amplitude), onset-sorted
-
-    # Continuous f0 for cents-accurate intonation at each note's onset.
     y, sr = librosa.load(str(audio_path), sr=22050, mono=True)
-    f0, _voiced, _p = librosa.pyin(
-        y, sr=sr, fmin=float(librosa.note_to_hz("C2")), fmax=float(librosa.note_to_hz("A6"))
-    )
-    times = librosa.times_like(f0, sr=sr)
+    perf = _segment_notes(y, sr, ref_a)
+    pairs = _align([e.midi for e in ref], [p.midi for p in perf])
+    ref_to_perf = {ri: pj for ri, pj in pairs if ri is not None and pj is not None}
 
-    def f0_at(t: float) -> float:
-        if len(times) == 0:
-            return 0.0
-        idx = int(np.argmin(np.abs(times - t)))
-        val = f0[idx]
-        return float(val) if np.isfinite(val) else 0.0
-
-    path = _dtw_path([e.midi for e in ref], [p.pitch_midi for p in perf])
-    ref_to_perf: dict[int, int] = {}
-    for ri, pj in path:
-        ref_to_perf.setdefault(ri, pj)  # first performance note aligned to this reference note
-
-    # Tempo mapping: reference beats → seconds via the aligned onsets' linear fit.
-    aligned = [(ref[ri].onset_beat, perf[pj].start) for ri, pj in ref_to_perf.items()]
-    if len(aligned) >= 2:
-        beats = np.array([a[0] for a in aligned]); secs = np.array([a[1] for a in aligned])
-        slope, intercept = np.polyfit(beats, secs, 1)  # sec per beat
+    # Robust tempo: median seconds-per-beat over consecutive matched pairs.
+    matched_pairs = sorted(ref_to_perf.items())
+    spb_samples = [
+        (perf[matched_pairs[k + 1][1]].start - perf[matched_pairs[k][1]].start)
+        / max(ref[matched_pairs[k + 1][0]].onset_beat - ref[matched_pairs[k][0]].onset_beat, 1e-6)
+        for k in range(len(matched_pairs) - 1)
+        if ref[matched_pairs[k + 1][0]].onset_beat > ref[matched_pairs[k][0]].onset_beat
+    ]
+    spb = float(np.median(spb_samples)) if spb_samples else 0.5
+    if matched_pairs:
+        r0, p0 = matched_pairs[0]
+        t0 = perf[p0].start - ref[r0].onset_beat * spb   # seconds at beat 0
     else:
-        slope, intercept = 0.5, 0.0
+        t0 = 0.0
 
     verdicts: list[NoteVerdict] = []
     matched = 0
     for ri, e in enumerate(ref):
+        name = librosa.midi_to_note(e.midi)
         if ri not in ref_to_perf:
-            verdicts.append(NoteVerdict(e.note_id, "missing", f"m.{e.measure}: expected note not detected"))
+            verdicts.append(NoteVerdict(e.note_id, "missing", f"m.{e.measure}: {name} not detected"))
             continue
         p = perf[ref_to_perf[ri]]
-        # Wrong note? (aligned performance pitch is a different semitone)
-        if abs(p.pitch_midi - e.midi) >= 1:
+        if abs(p.midi - e.midi) >= 1:  # wrong note
             verdicts.append(NoteVerdict(e.note_id, "wrong",
-                f"m.{e.measure}: played {librosa.midi_to_note(p.pitch_midi)}, expected {librosa.midi_to_note(e.midi)}"))
+                f"m.{e.measure}: played {librosa.midi_to_note(p.midi)}, expected {name}"))
             continue
-        name = librosa.midi_to_note(e.midi)
-        # Intonation judged against the tuning SYSTEM, not rigid ET: measure the
-        # deviation from the musically-correct target for this scale degree.
-        measured = _cents(f0_at(p.start), e.midi, ref_a)
+        # Intonation vs the tuning SYSTEM's target for this scale degree.
+        measured = _cents(p.f0, e.midi, ref_a)
         tonic = intonation.tonic_pc_from_fifths(e.key_fifths)
         expected = intonation.expected_offset(system, e.midi - tonic)
         dev = measured - expected
-        # Timing vs expected onset time.
-        expected_t = slope * e.onset_beat + intercept
-        timing_ms = (p.start - expected_t) * 1000.0
-        beat_frac = abs(timing_ms / 1000.0) / max(slope, 1e-6)
+        # Timing vs expected onset (tempo-normalized).
+        timing_ms = (p.start - (t0 + e.onset_beat * spb)) * 1000.0
+        beat_frac = abs(timing_ms / 1000.0) / max(spb, 1e-6)
 
         if abs(dev) > th.intonation_cents:
             kind = "sharp" if dev > 0 else "flat"
             verdicts.append(NoteVerdict(e.note_id, kind,
-                f"m.{e.measure}: {name} {dev:+.0f}¢ {'sharp' if dev>0 else 'flat'} of {system} intonation",
+                f"m.{e.measure}: {name} {dev:+.0f}¢ {'sharp' if dev > 0 else 'flat'} of {system} intonation",
                 cents=round(dev, 1)))
         elif beat_frac > th.timing_beat_frac:
             kind = "late" if timing_ms > 0 else "early"
             verdicts.append(NoteVerdict(e.note_id, kind,
-                f"m.{e.measure}: {'rushed' if timing_ms<0 else 'dragged'} ~{abs(timing_ms):.0f} ms",
+                f"m.{e.measure}: {name} {'dragged' if timing_ms > 0 else 'rushed'} ~{abs(timing_ms):.0f} ms",
                 timing_ms=round(timing_ms, 0)))
         else:
             matched += 1

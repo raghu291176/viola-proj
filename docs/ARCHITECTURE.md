@@ -372,6 +372,25 @@ Thresholds are a policy keyed to lesson skill + user level — not hardcoded. **
 
 The client stores note-id→verdict maps; `lib/realtime.ts` produces them on-device for T1, and the async worker returns them for T3 — same shape, so the Sheet/Lesson UI is identical either way.
 
+### 4.5 Where the models are hosted
+
+Each model runs where it's cheapest while staying real — that's the whole point of the tiers.
+
+| Model | Hosted where | Served by | Cost shape |
+| --- | --- | --- | --- |
+| CREPE-tiny (T1 pitch) | **In the client bundle** — `app/public/models/*.onnx`, served from **Azure Front Door / Static Web Apps** CDN | ONNX Runtime Web / WASM, in the user's browser | free (one-time download) |
+| pyin / DTW / feedback scoring | AKS **T4** pool | worker container (Triton) | scale-to-zero |
+| Basic Pitch, oemer, Demucs | AKS **A10G/A100** pool | worker container (Triton) | scale-to-zero |
+
+**Server models — two hosting modes (a serving/ops choice, not a model change):**
+
+1. **Baked into worker images (launch — what's in the repo).** Weights are fetched at *build time* (`worker/fetch_models.py`), the image is pushed to **Azure Container Registry (ACR)**, and inference runs inside the AKS worker pod. Self-contained; one artifact; KEDA scales the pods.
+2. **Azure ML Managed Online Endpoints (upgrade path — `infra/aml/`).** Models are registered/versioned in the **AML Model Registry** and served behind managed endpoints; the AKS worker becomes a thin orchestrator that calls the endpoint (set `AML_*_ENDPOINT`). Gives versioning, canary/A-B, and independent scaling. Identical model math.
+
+**Supporting:** multi-GB weights live in **Blob (Premium)** / AML datastore and are cached to node **NVMe (Blobfuse2 / init-container)** so a scaled-up pod never cold-starts on a big download. Registry/versioning = **AML**; secrets = **Key Vault**; latency/metrics = **App Insights**.
+
+> Deploy order: `az deployment group create` (bicep) → build & push images to ACR → `kubectl apply` the `infra/k8s` manifests → (optional) `python infra/aml/register_and_deploy.py` to move models onto managed endpoints.
+
 ---
 
 ## Appendix — source of truth
