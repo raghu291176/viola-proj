@@ -103,3 +103,19 @@ export async function runFeedbackAnalysis(blob: Blob, skill: string): Promise<Fe
   await startAnalyze(up.recording_id, up.blob_url, 'feedback', skill);
   return waitForResult(up.recording_id);
 }
+
+/** Upload a recording and kick off analysis; returns the recording id. */
+export async function uploadRecording(blob: Blob, skill: string, level: string): Promise<string> {
+  const up = await requestUploadUri('feedback', skill);
+  await putBlob(up.upload_url, blob);
+  await req(`/api/v1/recordings/${up.recording_id}/analyze`, {
+    method: 'POST',
+    body: JSON.stringify({ blob_url: up.blob_url, kind: 'feedback', skill, level }),
+  });
+  return up.recording_id;
+}
+
+/** Submit a teacher assessment (the labeled training record). */
+export async function submitAssessment(body: Record<string, unknown>): Promise<void> {
+  await req('/api/v1/assessments', { method: 'POST', body: JSON.stringify(body) });
+}

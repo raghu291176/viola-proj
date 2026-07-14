@@ -5,13 +5,13 @@ import { persist } from 'zustand/middleware';
 import { TS, NOTES, KEYS } from '../lib/constants';
 import { FEEDBACK_BANKS } from '../lib/data';
 import { metronome, drone, tuner, setReferenceA, type MetParams } from '../lib/audio';
-import { apiEnabled, runFeedbackAnalysis } from '../lib/api';
+import { apiEnabled, runFeedbackAnalysis, uploadRecording, submitAssessment } from '../lib/api';
 import { startMicRecording, stopMicRecording, cancelMicRecording, recordingSupported } from '../lib/recorder';
 import { liveEngine, type LiveCue } from '../lib/realtime';
 import type {
   Device, Tab, Sub, HomeVariant, Plan, PracticeTool, AnnTool, BowDir, Browse,
   Overlay, LearnTab, TransSource, RecState, MetMenu, SrMenu,
-  Piece, Course, Lesson, Mark, Stroke, Feedback,
+  Piece, Course, Lesson, Mark, Stroke, Feedback, NoteVerdict,
 } from '../lib/types';
 
 // Module-level timers / transient flags (not React state).
@@ -21,6 +21,21 @@ let fbTimer: ReturnType<typeof setTimeout>;
 let transTimer: ReturnType<typeof setTimeout>;
 let drawing = false;
 let usingRealRecorder = false;
+let assessTimer: ReturnType<typeof setInterval>;
+let assessBlob: Blob | null = null;
+let assessUsingMic = false;
+
+export interface AssessDraft {
+  student: string;
+  level: string;
+  pieceTitle: string;
+  grades: Record<string, number>;   // skill → 1..5
+  notes: string;
+  consent: boolean;
+  recState: RecState;
+  recSecs: number;
+  verdicts: NoteVerdict[];
+}
 
 function beatsOf(tsIdx: number): number {
   return parseInt(TS[tsIdx], 10);
@@ -88,6 +103,9 @@ export interface StoreState {
   // transcription
   src: TransSource;
   trans: boolean;
+  // teacher assessment (data-collection flywheel)
+  assess: AssessDraft;
+  assessCount: number;
 
   // ── derived ──
   subbed: () => boolean;
@@ -168,6 +186,14 @@ export interface StoreState {
 
   // ── account ──
   upgrade: () => void;
+
+  // ── teacher assessment ──
+  openAssess: () => void;
+  setAssess: (p: Partial<AssessDraft>) => void;
+  gradeSkill: (skill: string, n: number) => void;
+  startAssessRec: () => void;
+  stopAssessRec: () => void;
+  saveAssessment: () => void;
 }
 
 export const useStore = create<StoreState>()(
@@ -224,6 +250,11 @@ export const useStore = create<StoreState>()(
         learnTab: 'crs', course: null, lesson: null, checkPick: null, checkResult: null, done: {},
         recState: 'idle', recSecs: 0, feedback: null,
         src: 'file', trans: false,
+        assess: {
+          student: '', level: 'Intermediate', pieceTitle: 'Bach: Suite No. 1 in G Major',
+          grades: {}, notes: '', consent: false, recState: 'idle', recSecs: 0, verdicts: [],
+        },
+        assessCount: 0,
 
         subbed: () => get().plan !== 'Free plan',
         beats: () => beatsOf(get().tsIdx),
@@ -441,6 +472,50 @@ export const useStore = create<StoreState>()(
           set({ plan: 'Subscriber' });
           get().showToast('Subscribed — courses unlocked');
         },
+
+        // teacher assessment — the data-collection flywheel
+        openAssess: () => set({ sub: 'assess' }),
+        setAssess: (p) => set((s) => ({ assess: { ...s.assess, ...p } })),
+        gradeSkill: (skill, n) => set((s) => ({
+          assess: { ...s.assess, grades: { ...s.assess.grades, [skill]: n } },
+        })),
+        startAssessRec: () => {
+          clearInterval(assessTimer);
+          assessBlob = null;
+          assessUsingMic = false;
+          set((s) => ({ assess: { ...s.assess, recState: 'recording', recSecs: 0, verdicts: [] } }));
+          assessTimer = setInterval(
+            () => set((s) => ({ assess: { ...s.assess, recSecs: s.assess.recSecs + 1 } })), 1000);
+          if (recordingSupported()) {
+            startMicRecording().then(() => { assessUsingMic = true; }).catch(() => { assessUsingMic = false; });
+          }
+        },
+        stopAssessRec: () => {
+          clearInterval(assessTimer);
+          if (assessUsingMic) stopMicRecording().then((b) => { assessBlob = b; }).catch(() => { /* mic ended */ });
+          set((s) => ({ assess: { ...s.assess, recState: 'done' } }));
+        },
+        saveAssessment: () => {
+          const s = get();
+          const a = s.assess;
+          if (!a.student.trim()) { s.showToast('Enter the student’s name first'); return; }
+          if (!a.consent) { s.showToast('Consent is required to save a recording'); return; }
+          // With a backend: upload the recording + submit the labels. Offline: keep the count.
+          if (apiEnabled() && assessBlob) {
+            uploadRecording(assessBlob, 'reading', a.level)
+              .then((rid) => submitAssessment({
+                student: a.student, level: a.level, piece_title: a.pieceTitle,
+                grades: a.grades, notes: a.notes, consent: a.consent, recording_id: rid,
+              }))
+              .catch(() => { /* surfaced elsewhere; keep the local count */ });
+          }
+          const n = s.assessCount + 1;
+          set({
+            assessCount: n,
+            assess: { ...a, student: '', grades: {}, notes: '', consent: false, recState: 'idle', recSecs: 0, verdicts: [] },
+          });
+          s.showToast(`Assessment saved · ${n} collected`);
+        },
       };
     },
     {
@@ -452,6 +527,7 @@ export const useStore = create<StoreState>()(
         bpm: s.bpm, tsIdx: s.tsIdx, soundIdx: s.soundIdx,
         droneNote: s.droneNote, droneOct: s.droneOct, refA: s.refA,
         srKeyIdx: s.srKeyIdx, srTsIdx: s.srTsIdx, srNotes: s.srNotes,
+        assessCount: s.assessCount,
       }),
       onRehydrateStorage: () => (s) => {
         if (s?.refA) setReferenceA(s.refA);   // keep the audio engine in sync with the saved pitch

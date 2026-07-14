@@ -2,7 +2,7 @@
 
 export type Device = 'phone' | 'ipad';
 export type Tab = 'home' | 'music' | 'practice' | 'learn' | 'profile';
-export type Sub = null | 'sheet' | 'trans' | 'browse' | 'course' | 'lesson';
+export type Sub = null | 'sheet' | 'trans' | 'browse' | 'course' | 'lesson' | 'assess';
 export type HomeVariant = 'a' | 'b' | 'c';
 export type Plan = 'Free plan' | 'Subscriber';
 export type PracticeTool = 'met' | 'tun' | 'dro' | 'sr';
@@ -65,6 +65,27 @@ export interface Feedback {
   score: number;
   strengths: string[];
   work: string[];
+}
+
+// Per-note verdict from the matching engine — recolors the exact Verovio note.
+export type VerdictKind = 'good' | 'sharp' | 'flat' | 'late' | 'early' | 'wrong' | 'missing';
+export interface NoteVerdict {
+  noteId: string;
+  kind: VerdictKind;
+  detail?: string;
+  cents?: number;
+  timing_ms?: number;
+}
+
+// A teacher's assessment of a student — the labeled training record.
+export interface Assessment {
+  student: string;
+  level: string;
+  pieceTitle: string;
+  grades: Record<string, number>;   // skill → 1..5
+  notes: string;
+  consent: boolean;
+  verdicts: NoteVerdict[];           // AI's per-note analysis (teacher reference)
 }
 
 export interface FeedbackBank {

@@ -21,6 +21,12 @@ export const SROPTS = ['Shifting', 'Double stops', 'Treble clef part'];
 
 export const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
+// Technique dimensions a teacher grades — these become the labels for the
+// technique-quality models that no public dataset provides (the data moat).
+export const ASSESS_SKILLS = ['Intonation', 'Rhythm', 'Bowing', 'Shifting', 'Vibrato', 'Tone'];
+export const LEVELS = ['Beginner', 'Intermediate', 'Advanced'];
+export const GRADE_LABELS = ['—', 'Needs work', 'Developing', 'Solid', 'Strong', 'Excellent'];
+
 export function tempoName(bpm: number): string {
   return bpm < 60 ? 'Largo'
     : bpm < 76 ? 'Adagio'

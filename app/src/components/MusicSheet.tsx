@@ -3,13 +3,7 @@
 // feedback can recolor the exact note (the teaching core, ARCHITECTURE.md §4.4).
 import { useEffect, useRef, useState } from 'react';
 import type { VerovioToolkit } from 'verovio/esm';
-
-export type VerdictKind = 'good' | 'sharp' | 'flat' | 'late' | 'early' | 'wrong' | 'missing';
-
-export interface NoteVerdict {
-  noteId: string;
-  kind: VerdictKind;
-}
+import type { NoteVerdict, VerdictKind } from '../lib/types';
 
 const COLORS: Record<VerdictKind, string> = {
   good: '#16a34a',   // green — in tune / in time

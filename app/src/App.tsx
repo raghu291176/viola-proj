@@ -14,6 +14,7 @@ import { Course } from './screens/Course';
 import { Lesson } from './screens/Lesson';
 import { Transcription } from './screens/Transcription';
 import { Profile } from './screens/Profile';
+import { Assess } from './screens/Assess';
 
 function ActiveScreen() {
   const tab = useStore((s) => s.tab);
@@ -30,6 +31,7 @@ function ActiveScreen() {
     case 'trans': return <Transcription />;
     case 'course': return <Course />;
     case 'lesson': return <Lesson />;
+    case 'assess': return <Assess />;
     default: return <Home />;
   }
 }

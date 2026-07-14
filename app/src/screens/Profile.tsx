@@ -16,6 +16,8 @@ export function Profile() {
   const goTab = useStore((s) => s.goTab);
   const showToast = useStore((s) => s.showToast);
   const upgrade = useStore((s) => s.upgrade);
+  const openAssess = useStore((s) => s.openAssess);
+  const assessCount = useStore((s) => s.assessCount);
 
   const isFree = plan === 'Free plan';
   const cycleHome = () => {
@@ -44,6 +46,10 @@ export function Profile() {
           </button>
           <button className="setrow" onClick={() => goTab('home')}>
             Preview home<span className="setval">Open</span>
+            <Icon name="chevronRight" className="ic ic16 chev" />
+          </button>
+          <button className="setrow" onClick={openAssess}>
+            Teacher mode — assess a student<span className="setval">{assessCount} collected</span>
             <Icon name="chevronRight" className="ic ic16 chev" />
           </button>
           {PROFILE_MENU.map((t) => (
