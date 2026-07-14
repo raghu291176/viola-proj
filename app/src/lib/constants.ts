@@ -23,6 +23,9 @@ export const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#'
 
 // Technique dimensions a teacher grades — these become the labels for the
 // technique-quality models that no public dataset provides (the data moat).
+// Billing is off during early access — everything is free/unlocked for now.
+export const BILLING_ENABLED = false;
+
 export const ASSESS_SKILLS = ['Intonation', 'Rhythm', 'Bowing', 'Shifting', 'Vibrato', 'Tone'];
 export const LEVELS = ['Beginner', 'Intermediate', 'Advanced'];
 export const GRADE_LABELS = ['—', 'Needs work', 'Developing', 'Solid', 'Strong', 'Excellent'];

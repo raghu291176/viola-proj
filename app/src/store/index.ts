@@ -2,7 +2,7 @@
 // and its actions, organized by domain, and drives the Web Audio engine.
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { TS, NOTES, KEYS } from '../lib/constants';
+import { TS, NOTES, KEYS, BILLING_ENABLED } from '../lib/constants';
 import { FEEDBACK_BANKS } from '../lib/data';
 import { metronome, drone, tuner, setReferenceA, type MetParams } from '../lib/audio';
 import {
@@ -14,7 +14,7 @@ import { liveEngine, type LiveCue } from '../lib/realtime';
 import type {
   Device, Tab, Sub, HomeVariant, Plan, PracticeTool, AnnTool, BowDir, Browse,
   Overlay, LearnTab, TransSource, RecState, MetMenu, SrMenu,
-  Piece, Course, Lesson, Mark, Stroke, Feedback, NoteVerdict,
+  Piece, Course, Lesson, Mark, Stroke, Feedback, NoteVerdict, Role, Student,
 } from '../lib/types';
 
 // Module-level timers / transient flags (not React state).
@@ -109,12 +109,14 @@ export interface StoreState {
   // teacher assessment (data-collection flywheel)
   assess: AssessDraft;
   assessCount: number;
-  // auth
+  // auth + role
   authed: boolean;
   authName: string;
   authRole: string;
   authError: string;
   authBusy: boolean;
+  role: Role;                 // drives which set of screens (teacher vs student)
+  students: Student[];        // a teacher's roster
 
   // ── derived ──
   subbed: () => boolean;
@@ -209,6 +211,12 @@ export interface StoreState {
   register: (email: string, password: string, name: string, role: string) => void;
   logout: () => void;
   clearAuthError: () => void;
+
+  // ── role + roster (teacher) ──
+  setRole: (role: Role) => void;
+  addStudent: (name: string, level: string) => void;
+  removeStudent: (name: string) => void;
+  assessStudent: (name: string, level: string) => void;
 }
 
 export const useStore = create<StoreState>()(
@@ -271,8 +279,10 @@ export const useStore = create<StoreState>()(
         },
         assessCount: 0,
         authed: authToken() !== '', authName: '', authRole: '', authError: '', authBusy: false,
+        role: 'student', students: [],
 
-        subbed: () => get().plan !== 'Free plan',
+        // Free during early access → everything unlocked regardless of plan.
+        subbed: () => !BILLING_ENABLED || get().plan !== 'Free plan',
         beats: () => beatsOf(get().tsIdx),
 
         // nav
@@ -537,17 +547,35 @@ export const useStore = create<StoreState>()(
         login: (email, password) => {
           set({ authBusy: true, authError: '' });
           apiLogin(email, password)
-            .then((r) => { setAuthToken(r.token); set({ authed: true, authName: r.name, authRole: r.role, authBusy: false }); })
+            .then((r) => { setAuthToken(r.token); get().setRole(r.role as Role); set({ authed: true, authName: r.name, authRole: r.role, authBusy: false }); })
             .catch(() => set({ authError: 'Invalid email or password.', authBusy: false }));
         },
         register: (email, password, name, role) => {
           set({ authBusy: true, authError: '' });
           apiRegister(email, password, name, role)
-            .then((r) => { setAuthToken(r.token); set({ authed: true, authName: r.name, authRole: r.role, authBusy: false }); })
+            .then((r) => { setAuthToken(r.token); get().setRole(r.role as Role); set({ authed: true, authName: r.name, authRole: r.role, authBusy: false }); })
             .catch(() => set({ authError: 'Could not register — that email may already be in use.', authBusy: false }));
         },
         logout: () => { setAuthToken(null); set({ authed: false, authName: '', authRole: '' }); },
         clearAuthError: () => set({ authError: '' }),
+
+        // role + roster
+        setRole: (role) => {
+          const teacher = role === 'teacher' || role === 'admin';
+          set({ role, tab: teacher ? 'students' : 'home', sub: null });
+        },
+        addStudent: (name, level) => {
+          name = name.trim();
+          if (!name) { get().showToast('Enter a student name'); return; }
+          set((s) => (s.students.some((x) => x.name === name)
+            ? {}
+            : { students: [...s.students, { name, level }] }));
+        },
+        removeStudent: (name) => set((s) => ({ students: s.students.filter((x) => x.name !== name) })),
+        assessStudent: (name, level) => set((s) => ({
+          tab: 'assess', sub: null,
+          assess: { ...s.assess, student: name, level },
+        })),
       };
     },
     {
@@ -559,7 +587,7 @@ export const useStore = create<StoreState>()(
         bpm: s.bpm, tsIdx: s.tsIdx, soundIdx: s.soundIdx,
         droneNote: s.droneNote, droneOct: s.droneOct, refA: s.refA,
         srKeyIdx: s.srKeyIdx, srTsIdx: s.srTsIdx, srNotes: s.srNotes,
-        assessCount: s.assessCount,
+        assessCount: s.assessCount, role: s.role, students: s.students,
       }),
       onRehydrateStorage: () => (s) => {
         if (s?.refA) setReferenceA(s.refA);   // keep the audio engine in sync with the saved pitch

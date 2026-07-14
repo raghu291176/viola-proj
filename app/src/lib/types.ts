@@ -1,7 +1,9 @@
 // ViolaHub shared domain + state types. The contract every module consumes.
 
 export type Device = 'phone' | 'ipad';
-export type Tab = 'home' | 'music' | 'practice' | 'learn' | 'profile';
+export type Tab = 'home' | 'music' | 'practice' | 'learn' | 'profile' | 'students' | 'assess';
+export type Role = 'student' | 'teacher' | 'admin';
+export interface Student { name: string; level: string }
 export type Sub = null | 'sheet' | 'trans' | 'browse' | 'course' | 'lesson' | 'assess';
 export type HomeVariant = 'a' | 'b' | 'c';
 export type Plan = 'Free plan' | 'Subscriber';

@@ -10,7 +10,7 @@ import { ASSESS_SKILLS, LEVELS, GRADE_LABELS } from '../lib/constants';
 export function Assess() {
   const a = useStore((s) => s.assess);
   const count = useStore((s) => s.assessCount);
-  const back = useStore((s) => s.back);
+  const goTab = useStore((s) => s.goTab);
   const setAssess = useStore((s) => s.setAssess);
   const gradeSkill = useStore((s) => s.gradeSkill);
   const startAssessRec = useStore((s) => s.startAssessRec);
@@ -22,7 +22,7 @@ export function Assess() {
   return (
     <div className="col f1 ohide">
       <div className="hdr">
-        <button className="iconbtn" onClick={back}><Icon name="chevronLeft" /></button>
+        <button className="iconbtn" onClick={() => goTab('students')}><Icon name="chevronLeft" /></button>
         <div className="f1"><div className="htitle" style={{ fontSize: 14 }}>Assessment</div><div className="rsub">{count} collected</div></div>
       </div>
       <div className="scr">
