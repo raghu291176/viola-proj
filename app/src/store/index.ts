@@ -4,7 +4,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { TS, NOTES, KEYS } from '../lib/constants';
 import { FEEDBACK_BANKS } from '../lib/data';
-import { metronome, drone, tuner, type MetParams } from '../lib/audio';
+import { metronome, drone, tuner, setReferenceA, type MetParams } from '../lib/audio';
 import { apiEnabled, runFeedbackAnalysis } from '../lib/api';
 import { startMicRecording, stopMicRecording, cancelMicRecording, recordingSupported } from '../lib/recorder';
 import { liveEngine, type LiveCue } from '../lib/realtime';
@@ -60,6 +60,7 @@ export interface StoreState {
   heard: string | null;
   cents: number;
   hz: number;
+  refA: number;                 // reference pitch A4 in Hz (orchestral: 442/443)
   // live (T1 on-device real-time)
   liveCue: LiveCue | null;
   // drone
@@ -130,6 +131,7 @@ export interface StoreState {
 
   // ── tuner action ──
   toggleListen: () => void;
+  setRefA: (hz: number) => void;
 
   // ── live cue (T1) ──
   startLiveCue: () => void;
@@ -214,7 +216,7 @@ export const useStore = create<StoreState>()(
         overlay: null,
         annTool: 'select', bowDir: 'up', finger: '1', marks: [], strokes: [],
         bpm: 80, run: false, beat: -1, tsIdx: 2, accent: 1, soundIdx: 0, metMenu: null,
-        listening: false, heard: null, cents: 0, hz: 0,
+        listening: false, heard: null, cents: 0, hz: 0, refA: 442,
         liveCue: null,
         droneNote: 'A', droneOct: 3, dronePlay: false,
         prTool: 'met', srMenu: null, srNum: 1, srKeyIdx: 0, srTsIdx: 2,
@@ -319,6 +321,12 @@ export const useStore = create<StoreState>()(
           tuner.start((p) => set({ heard: p.heard, cents: p.cents, hz: p.hz }))
             .then(() => set({ listening: true }))
             .catch(() => s.showToast('Microphone access is needed for the tuner'));
+        },
+        setRefA: (hz) => {
+          setReferenceA(hz);
+          set({ refA: hz });
+          const s = get();
+          if (s.dronePlay) drone.retune(s.droneNote, s.droneOct);
         },
 
         // live cue (T1 on-device real-time)
@@ -442,9 +450,12 @@ export const useStore = create<StoreState>()(
         device: s.device, hv: s.hv, plan: s.plan,
         recentOpened: s.recentOpened, done: s.done,
         bpm: s.bpm, tsIdx: s.tsIdx, soundIdx: s.soundIdx,
-        droneNote: s.droneNote, droneOct: s.droneOct,
+        droneNote: s.droneNote, droneOct: s.droneOct, refA: s.refA,
         srKeyIdx: s.srKeyIdx, srTsIdx: s.srTsIdx, srNotes: s.srNotes,
       }),
+      onRehydrateStorage: () => (s) => {
+        if (s?.refA) setReferenceA(s.refA);   // keep the audio engine in sync with the saved pitch
+      },
     },
   ),
 );

@@ -6,6 +6,7 @@ export function Home() {
   const recentOpened = useStore((s) => s.recentOpened);
   const bpm = useStore((s) => s.bpm);
   const droneNote = useStore((s) => s.droneNote);
+  const refA = useStore((s) => s.refA);
   const showToast = useStore((s) => s.showToast);
   const openSheet = useStore((s) => s.openSheet);
   const openPiece = useStore((s) => s.openPiece);
@@ -74,7 +75,7 @@ export function Home() {
           </button>
           <div className="kickrow"><p className="kick">Tools</p></div>
           <button className="rowbtn" onClick={() => goToolH('met')}><span className="rtitle f1">Metronome</span><span className="rsub">{bpm} BPM</span></button>
-          <button className="rowbtn" onClick={() => goToolH('tun')}><span className="rtitle f1">Tuner</span><span className="rsub">A4 · 440 Hz</span></button>
+          <button className="rowbtn" onClick={() => goToolH('tun')}><span className="rtitle f1">Tuner</span><span className="rsub">A4 · {refA} Hz</span></button>
           <button className="rowbtn" onClick={() => goToolH('dro')}><span className="rtitle f1">Drone</span><span className="rsub">{droneNote}</span></button>
           <button className="rowbtn" onClick={() => goToolH('sr')}><span className="rtitle f1">Sight reading</span><span className="rsub">Level 2</span></button>
           <div className="kickrow"><p className="kick">Recent music</p><button className="seeall" onClick={() => goTab('music')}>See all</button></div>

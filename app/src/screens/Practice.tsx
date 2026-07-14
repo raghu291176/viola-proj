@@ -75,11 +75,15 @@ function Metronome() {
   );
 }
 
+const A_REFS = [415, 440, 441, 442, 443, 444];
+
 function Tuner() {
   const listening = useStore((s) => s.listening);
   const heard = useStore((s) => s.heard);
   const cents = useStore((s) => s.cents);
   const hz = useStore((s) => s.hz);
+  const refA = useStore((s) => s.refA);
+  const setRefA = useStore((s) => s.setRefA);
   const toggleListen = useStore((s) => s.toggleListen);
 
   const centsLabel = `${cents > 0 ? '+' : ''}${cents} cents · ${hz} Hz`;
@@ -87,7 +91,7 @@ function Tuner() {
 
   return (
     <div className="scr">
-      <p className="kick" style={{ marginTop: 6 }}>Chromatic tuner · A = 440 Hz</p>
+      <p className="kick" style={{ marginTop: 6 }}>Chromatic tuner · A = {refA} Hz</p>
       <div className="gauge">
         <div className="garc" />
         {ticks.map((deg) => (
@@ -105,6 +109,14 @@ function Tuner() {
       )}
       <button className="btn btn-primary btn-block mt16" onClick={toggleListen}>{listening ? 'Stop listening' : 'Start listening'}</button>
       <p className="rsub mt12">{listening ? 'Listening… play a long, steady bow stroke.' : 'Uses your microphone — tap start and play a note.'}</p>
+      <div className="kickrow"><p className="kick">Reference pitch</p></div>
+      <div className="optwrap">
+        {A_REFS.map((a) => (
+          <button key={a} className={`optbtn${a === refA ? ' on' : ''}`} onClick={() => setRefA(a)}>
+            {a === 415 ? 'A415 · Baroque' : `A${a}`}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

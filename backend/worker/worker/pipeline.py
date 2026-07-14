@@ -26,6 +26,7 @@ class AnalyzeJob:
     kind: str                     # "feedback" | "transcription" | "omr"
     skill: str = "reading"
     level: str = "intermediate"   # judging strictness (ARCHITECTURE.md §4.4)
+    ref_a: float = 442.0          # reference pitch A4 (orchestral players use 442/443)
     reference_blob_url: str | None = None  # reference score (MusicXML), when available
 
 
@@ -71,7 +72,7 @@ def run(job: AnalyzeJob, conn) -> dict[str, Any]:
             note_verdicts: list[dict[str, Any]] = []
             score = fb.score
             if ref_musicxml:
-                m = matching.analyze(audio, ref_musicxml, level=job.level)
+                m = matching.analyze(audio, ref_musicxml, level=job.level, ref_a=job.ref_a)
                 note_verdicts = m["note_verdicts"]
                 if m["total"]:
                     score = m["score"]   # match score is the authoritative number when we have a score

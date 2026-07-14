@@ -21,6 +21,7 @@ from typing import Any
 
 import numpy as np
 
+from . import intonation
 from .thresholds import policy, Thresholds
 from .transcribe import transcribe
 
@@ -34,6 +35,7 @@ class RefEvent:
     onset_beat: float
     duration_beats: float
     measure: int
+    key_fifths: int = 0   # from the MusicXML key signature (for tuning-system intonation)
 
 
 @dataclass
@@ -52,7 +54,11 @@ def parse_reference(musicxml: str) -> list[RefEvent]:
     root = _xml_fromstring(musicxml)
     events: list[RefEvent] = []
     divisions = 1.0
+    fifths = 0
     for measure in root.iter("measure"):
+        key_el = measure.find("attributes/key/fifths")
+        if key_el is not None and key_el.text:
+            fifths = int(key_el.text)
         try:
             mnum = int(measure.get("number", "0"))
         except ValueError:
@@ -81,6 +87,7 @@ def parse_reference(musicxml: str) -> list[RefEvent]:
             events.append(RefEvent(
                 note_id=note.get("id", f"m{mnum}-{len(events)}"),
                 midi=midi, onset_beat=this_onset, duration_beats=dur_beats, measure=mnum,
+                key_fifths=fifths,
             ))
             if not is_chord:
                 prev_onset = onset
@@ -115,18 +122,29 @@ def _dtw_path(ref: list[int], perf: list[int]) -> list[tuple[int, int]]:
     return path[::-1]
 
 
-def _cents(f0: float, target_midi: int) -> float:
+def _cents(f0: float, target_midi: int, ref_a: float) -> float:
+    """Signed cents of f0 relative to the equal-tempered target, at reference A."""
     if f0 <= 0:
         return 0.0
-    perf_midi = 69 + 12 * np.log2(f0 / 440.0)
+    perf_midi = 69 + 12 * np.log2(f0 / ref_a)
     return float((perf_midi - target_midi) * 100.0)
 
 
-def analyze(audio_path: str | Path, musicxml: str, level: str | None = None) -> dict[str, Any]:
-    """Full match: per-note verdicts + match score against the reference score."""
+def analyze(
+    audio_path: str | Path,
+    musicxml: str,
+    level: str | None = None,
+    ref_a: float = 442.0,
+) -> dict[str, Any]:
+    """Full match: per-note verdicts + match score against the reference score.
+
+    Intonation is judged against the level's tuning **system** (expressive for
+    advanced), not rigid equal temperament — see models/intonation.py.
+    """
     import librosa
 
     th: Thresholds = policy(level)
+    system = intonation.system_for(level)
     ref = parse_reference(musicxml)
     if not ref:
         return {"note_verdicts": [], "score": 0, "matched": 0, "total": 0}
@@ -173,18 +191,23 @@ def analyze(audio_path: str | Path, musicxml: str, level: str | None = None) -> 
             verdicts.append(NoteVerdict(e.note_id, "wrong",
                 f"m.{e.measure}: played {librosa.midi_to_note(p.pitch_midi)}, expected {librosa.midi_to_note(e.midi)}"))
             continue
-        # Intonation (cents) from the continuous f0 at the note's onset.
-        cents = _cents(f0_at(p.start), e.midi)
+        name = librosa.midi_to_note(e.midi)
+        # Intonation judged against the tuning SYSTEM, not rigid ET: measure the
+        # deviation from the musically-correct target for this scale degree.
+        measured = _cents(f0_at(p.start), e.midi, ref_a)
+        tonic = intonation.tonic_pc_from_fifths(e.key_fifths)
+        expected = intonation.expected_offset(system, e.midi - tonic)
+        dev = measured - expected
         # Timing vs expected onset time.
         expected_t = slope * e.onset_beat + intercept
         timing_ms = (p.start - expected_t) * 1000.0
         beat_frac = abs(timing_ms / 1000.0) / max(slope, 1e-6)
 
-        if abs(cents) > th.intonation_cents:
-            kind = "sharp" if cents > 0 else "flat"
+        if abs(dev) > th.intonation_cents:
+            kind = "sharp" if dev > 0 else "flat"
             verdicts.append(NoteVerdict(e.note_id, kind,
-                f"m.{e.measure}: {librosa.midi_to_note(e.midi)} played {cents:+.0f}¢ {'sharp' if cents>0 else 'flat'}",
-                cents=round(cents, 1)))
+                f"m.{e.measure}: {name} {dev:+.0f}¢ {'sharp' if dev>0 else 'flat'} of {system} intonation",
+                cents=round(dev, 1)))
         elif beat_frac > th.timing_beat_frac:
             kind = "late" if timing_ms > 0 else "early"
             verdicts.append(NoteVerdict(e.note_id, kind,
@@ -193,8 +216,7 @@ def analyze(audio_path: str | Path, musicxml: str, level: str | None = None) -> 
         else:
             matched += 1
             verdicts.append(NoteVerdict(e.note_id, "good",
-                f"m.{e.measure}: {librosa.midi_to_note(e.midi)} in tune, in time",
-                cents=round(cents, 1)))
+                f"m.{e.measure}: {name} in tune, in time", cents=round(dev, 1)))
 
     total = len(ref)
     score = int(round(100 * matched / total)) if total else 0
@@ -204,4 +226,6 @@ def analyze(audio_path: str | Path, musicxml: str, level: str | None = None) -> 
         "matched": matched,
         "total": total,
         "level": (level or "intermediate"),
+        "system": system,
+        "ref_a": ref_a,
     }

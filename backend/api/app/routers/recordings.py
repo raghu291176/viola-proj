@@ -36,6 +36,7 @@ class AnalyzeRequest(BaseModel):
     kind: Kind = "feedback"
     skill: str = "reading"
     level: str = "intermediate"
+    ref_a: float = 442.0
     reference_blob_url: str | None = None
 
 
@@ -70,6 +71,7 @@ async def analyze(recording_id: str, body: AnalyzeRequest, user: str = Depends(c
         "kind": body.kind,
         "skill": body.skill,
         "level": body.level,
+        "ref_a": body.ref_a,
         "reference_blob_url": body.reference_blob_url,
     })
     return {"recording_id": recording_id, "status": "processing"}

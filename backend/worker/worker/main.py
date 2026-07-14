@@ -41,6 +41,7 @@ def handle(raw: str, conn) -> None:
         kind=msg.get("kind", "feedback"),
         skill=msg.get("skill", "reading"),
         level=msg.get("level", "intermediate"),
+        ref_a=float(msg.get("ref_a", 442.0)),
         reference_blob_url=msg.get("reference_blob_url"),
     )
     print(f"[worker] analyzing recording {job.recording_id} ({job.kind}/{job.skill}) for {job.user_id}")

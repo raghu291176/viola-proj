@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { detectPitch, droneFreq } from './audio';
+import { detectPitch, droneFreq, setReferenceA } from './audio';
 import { tempoName } from './constants';
 
 function sine(freq: number, sr = 44100, n = 2048): Float32Array {
@@ -22,12 +22,16 @@ describe('detectPitch (autocorrelation)', () => {
   });
 });
 
-describe('droneFreq (equal temperament)', () => {
-  it('places A3 at 220 Hz and A4 at 440 Hz', () => {
+describe('droneFreq (reference-pitch aware)', () => {
+  it('anchors A4 to the reference pitch (440 and 442)', () => {
+    setReferenceA(440);
     expect(droneFreq('A', 3)).toBeCloseTo(220, 5);
     expect(droneFreq('A', 4)).toBeCloseTo(440, 5);
+    setReferenceA(442);
+    expect(droneFreq('A', 4)).toBeCloseTo(442, 5);
+    setReferenceA(442); // restore default
   });
-  it('one octave up doubles the frequency', () => {
+  it('one octave up doubles the frequency (independent of reference)', () => {
     expect(droneFreq('C', 4) / droneFreq('C', 3)).toBeCloseTo(2, 5);
   });
 });

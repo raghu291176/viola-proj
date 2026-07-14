@@ -2,7 +2,7 @@
 // while you play, from real autocorrelation DSP. Zero backend, zero latency,
 // commercial-safe (no model weights). CREPE-tiny (ONNX/WASM) is the upgrade path
 // behind this same interface; the store's `liveCue` selector is unchanged.
-import { detectPitch } from './audio';
+import { detectPitch, getReferenceA } from './audio';
 import { NOTES } from './constants';
 
 export interface LiveCue {
@@ -38,7 +38,7 @@ export const liveEngine = {
         an.getFloatTimeDomainData(buf);
         const f = detectPitch(buf, ac!.sampleRate);
         if (f <= 0) { onCue({ note: '', cents: 0, status: 'silent', hz: 0 }); return; }
-        const midi = 69 + 12 * Math.log2(f / 440);
+        const midi = 69 + 12 * Math.log2(f / getReferenceA());
         const near = Math.round(midi);
         const cents = Math.round((midi - near) * 100);
         const note = NOTES[((near % 12) + 12) % 12] + (Math.floor(near / 12) - 1);

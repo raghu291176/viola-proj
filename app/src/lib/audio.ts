@@ -2,6 +2,12 @@
 // Ported from ViolaHub Prototype.dc.html Component audio methods, decoupled from React.
 import { NOTES } from './constants';
 
+// Reference pitch (A4). Orchestral players tune sharp of 440 — 442 is common
+// (NY Phil ≈ 442), Baroque ≈ 415. Everything pitch-related reads this.
+let referenceA = 442;
+export function setReferenceA(hz: number): void { referenceA = hz; }
+export function getReferenceA(): number { return referenceA; }
+
 let ac: AudioContext | null = null;
 function ctx(): AudioContext {
   if (!ac) {
@@ -12,44 +18,70 @@ function ctx(): AudioContext {
   return ac;
 }
 
-// ── shared: click tone ──────────────────────────────────────────────
-function click(soundIdx: number, hi: boolean): void {
+// ── metronome — sample-accurate lookahead scheduler ─────────────────
+// Pro-audio timing (Chris Wilson "A Tale of Two Clocks"): a coarse JS timer only
+// *schedules* clicks slightly ahead on the AudioContext's sample clock, so every
+// beat fires at an exact audio time — no setInterval drift or jitter. The visual
+// beat is driven off the same clock via rAF, so sound and UI stay locked.
+export interface MetParams { bpm: number; beats: number; accent: number; soundIdx: number }
+
+const LOOKAHEAD_MS = 25;        // how often the scheduler wakes
+const SCHEDULE_AHEAD_S = 0.12;  // how far ahead we schedule audio events
+
+let metGet: (() => MetParams) | null = null;
+let metOnBeat: ((beat: number) => void) | null = null;
+let schedTimer: ReturnType<typeof setTimeout> | undefined;
+let rafId = 0;
+let nextBeatTime = 0;           // AudioContext time of the next beat
+let schedBeat = 0;              // beat index being scheduled
+let beatQueue: { beat: number; time: number }[] = [];
+let displayedBeat = -1;
+
+/** Schedule one click at an exact AudioContext time. */
+function clickAt(soundIdx: number, hi: boolean, time: number): void {
   try {
     const c = ctx();
-    const i = soundIdx;
     const o = c.createOscillator();
     const g = c.createGain();
-    o.type = i === 0 ? 'square' : i === 1 ? 'sine' : 'triangle';
-    o.frequency.value = i === 0 ? (hi ? 1400 : 1000) : i === 1 ? (hi ? 2100 : 1700) : (hi ? 880 : 660);
-    g.gain.setValueAtTime(0.2, c.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.07);
+    o.type = soundIdx === 0 ? 'square' : soundIdx === 1 ? 'sine' : 'triangle';
+    o.frequency.value = soundIdx === 0 ? (hi ? 1400 : 1000)
+      : soundIdx === 1 ? (hi ? 2100 : 1700) : (hi ? 880 : 660);
+    g.gain.setValueAtTime(0.0001, time);
+    g.gain.exponentialRampToValueAtTime(hi ? 0.28 : 0.2, time + 0.002); // crisp attack
+    g.gain.exponentialRampToValueAtTime(0.0001, time + 0.06);
     o.connect(g);
     g.connect(c.destination);
-    o.start();
-    o.stop(c.currentTime + 0.08);
+    o.start(time);
+    o.stop(time + 0.07);
   } catch { /* audio unavailable */ }
 }
 
-// ── metronome ───────────────────────────────────────────────────────
-export interface MetParams { bpm: number; beats: number; accent: number; soundIdx: number }
-
-let metIv: ReturnType<typeof setInterval> | undefined;
-let metGet: (() => MetParams) | null = null;
-let metOnBeat: ((beat: number) => void) | null = null;
-let metBeat = -1;
-
-function metTick(): void {
-  if (!metGet || !metOnBeat) return;
-  const p = metGet();
-  const nb = (metBeat + 1) % p.beats;
-  click(p.soundIdx, nb === p.accent - 1);
-  metBeat = nb;
-  metOnBeat(nb);
-}
-function metSchedule(): void {
+function scheduler(): void {
   if (!metGet) return;
-  clearInterval(metIv);
-  metIv = setInterval(metTick, 60000 / metGet().bpm);
+  const c = ctx();
+  while (nextBeatTime < c.currentTime + SCHEDULE_AHEAD_S) {
+    const p = metGet();
+    const isAccent = p.accent > 0 && schedBeat === p.accent - 1;
+    clickAt(p.soundIdx, isAccent, nextBeatTime);
+    beatQueue.push({ beat: schedBeat, time: nextBeatTime });
+    nextBeatTime += 60 / p.bpm;            // live BPM — tempo changes apply on the next beat
+    schedBeat = (schedBeat + 1) % p.beats; // live meter
+  }
+  schedTimer = setTimeout(scheduler, LOOKAHEAD_MS);
+}
+
+/** rAF loop: flip the visual beat exactly when its scheduled audio time arrives. */
+function draw(): void {
+  const now = ctx().currentTime;
+  let b = displayedBeat;
+  while (beatQueue.length && beatQueue[0].time <= now) {
+    b = beatQueue.shift()!.beat;
+  }
+  if (b !== displayedBeat) {
+    displayedBeat = b;
+    metOnBeat?.(b);
+  }
+  rafId = requestAnimationFrame(draw);
 }
 
 export const metronome = {
@@ -57,29 +89,31 @@ export const metronome = {
   start(get: () => MetParams, onBeat: (beat: number) => void): void {
     metGet = get;
     metOnBeat = onBeat;
-    metBeat = 0;
-    const p = get();
-    click(p.soundIdx, p.accent === 1);
-    onBeat(0);
-    metSchedule();
+    schedBeat = 0;
+    displayedBeat = -1;
+    beatQueue = [];
+    nextBeatTime = ctx().currentTime + 0.06; // tiny lead-in
+    scheduler();
+    rafId = requestAnimationFrame(draw);
   },
-  /** Re-time the interval after a BPM change (only if running). */
-  reschedule(): void {
-    if (metIv) metSchedule();
-  },
+  /** No-op: the lookahead scheduler picks up BPM/meter changes on the next beat. */
+  reschedule(): void { /* live params are read every scheduler tick */ },
   running(): boolean {
-    return metIv !== undefined;
+    return schedTimer !== undefined;
   },
   stop(): void {
-    clearInterval(metIv);
-    metIv = undefined;
-    metBeat = -1;
+    clearTimeout(schedTimer);
+    cancelAnimationFrame(rafId);
+    schedTimer = undefined;
+    beatQueue = [];
+    displayedBeat = -1;
   },
 };
 
 // ── drone ───────────────────────────────────────────────────────────
 export function droneFreq(note: string, oct: number): number {
-  return 220 * Math.pow(2, (NOTES.indexOf(note) - 9) / 12) * Math.pow(2, oct - 3);
+  // Anchored to the current reference A (A4 = referenceA).
+  return (referenceA / 440) * 220 * Math.pow(2, (NOTES.indexOf(note) - 9) / 12) * Math.pow(2, oct - 3);
 }
 
 let osc: OscillatorNode | null = null;
@@ -157,7 +191,7 @@ export const tuner = {
         an.getFloatTimeDomainData(buf);
         const f = detectPitch(buf, c.sampleRate);
         if (f > 0) {
-          const midi = 69 + 12 * Math.log2(f / 440);
+          const midi = 69 + 12 * Math.log2(f / referenceA);
           const near = Math.round(midi);
           const cents = Math.max(-50, Math.min(50, Math.round((midi - near) * 100)));
           const name = NOTES[((near % 12) + 12) % 12] + (Math.floor(near / 12) - 1);
