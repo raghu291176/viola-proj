@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: violahub-api
+  labels: { app: violahub-api }
+spec:
+  replicas: 2
+  selector: { matchLabels: { app: violahub-api } }
+  template:
+    metadata:
+      labels: { app: violahub-api, azure.workload.identity/use: "true" }
+    spec:
+      serviceAccountName: violahub   # federated to a managed identity (workload identity)
+      containers:
+        - name: api
+          image: ${ACR_LOGIN_SERVER}/violahub-api:latest
+          ports: [ { containerPort: 8000 } ]
+          env:
+            - { name: VIOLAHUB_DATABASE_URL,        valueFrom: { secretKeyRef: { name: violahub, key: database-url } } }
+            - { name: VIOLAHUB_STORAGE_ACCOUNT,     value: "${STORAGE_ACCOUNT}" }
+            - { name: VIOLAHUB_SERVICEBUS_NAMESPACE, value: "${SERVICEBUS_NAMESPACE}" }
+            - { name: VIOLAHUB_WEBPUBSUB_ENDPOINT,  value: "${WEBPUBSUB_ENDPOINT}" }
+            - { name: VIOLAHUB_JWT_JWKS_URL,        value: "${JWT_JWKS_URL}" }
+            - { name: VIOLAHUB_JWT_ISSUER,          value: "${JWT_ISSUER}" }
+          readinessProbe: { httpGet: { path: /healthz, port: 8000 }, initialDelaySeconds: 5 }
+          resources:
+            requests: { cpu: "100m", memory: "256Mi" }
+            limits:   { cpu: "500m", memory: "512Mi" }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: violahub-api
+spec:
+  selector: { app: violahub-api }
+  ports: [ { port: 80, targetPort: 8000 } ]

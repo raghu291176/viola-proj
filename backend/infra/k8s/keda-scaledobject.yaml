@@ -1,0 +1,31 @@
+# KEDA scales the worker on Service Bus topic backlog (ARCHITECTURE.md §3.7 step 6):
+# scale to zero when idle, add T4 GPU replicas as the queue grows.
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: violahub-worker
+spec:
+  scaleTargetRef:
+    name: violahub-worker
+  minReplicaCount: 0
+  maxReplicaCount: 6
+  cooldownPeriod: 120        # scale back down 2 min after the queue drains
+  pollingInterval: 15
+  triggers:
+    - type: azure-servicebus
+      metadata:
+        topicName: recordings
+        subscriptionName: workers
+        namespace: ${SERVICEBUS_NAMESPACE_SHORT}   # e.g. violahub-xxxx
+        messageCount: "5"                          # ~1 replica per 5 queued jobs
+      authenticationRef:
+        name: violahub-servicebus-auth
+---
+# Workload-identity auth for the KEDA trigger (no connection strings).
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: violahub-servicebus-auth
+spec:
+  podIdentity:
+    provider: azure-workload

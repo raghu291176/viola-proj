@@ -114,7 +114,7 @@ export interface Pitch { heard: string | null; cents: number; hz: number }
 let stream: MediaStream | null = null;
 let raf = 0;
 
-function detectPitch(buf: Float32Array, sr: number): number {
+export function detectPitch(buf: Float32Array, sr: number): number {
   const n = buf.length;
   let rms = 0;
   for (let i = 0; i < n; i++) rms += buf[i] * buf[i];

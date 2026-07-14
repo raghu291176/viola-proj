@@ -4,9 +4,12 @@ import './styles/modernist.css';
 import './styles/theme.css';
 import './styles/app.css';
 import { App } from './App';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </StrictMode>,
 );

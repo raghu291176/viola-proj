@@ -5,6 +5,8 @@ import { persist } from 'zustand/middleware';
 import { TS, NOTES, KEYS } from '../lib/constants';
 import { FEEDBACK_BANKS } from '../lib/data';
 import { metronome, drone, tuner, type MetParams } from '../lib/audio';
+import { apiEnabled, runFeedbackAnalysis } from '../lib/api';
+import { startMicRecording, stopMicRecording, cancelMicRecording, recordingSupported } from '../lib/recorder';
 import type {
   Device, Tab, Sub, HomeVariant, Plan, PracticeTool, AnnTool, BowDir, Browse,
   Overlay, LearnTab, TransSource, RecState, MetMenu, SrMenu,
@@ -17,6 +19,7 @@ let recTimer: ReturnType<typeof setInterval>;
 let fbTimer: ReturnType<typeof setTimeout>;
 let transTimer: ReturnType<typeof setTimeout>;
 let drawing = false;
+let usingRealRecorder = false;
 
 function beatsOf(tsIdx: number): number {
   return parseInt(TS[tsIdx], 10);
@@ -166,6 +169,33 @@ export const useStore = create<StoreState>()(
         return { bpm: s.bpm, beats: beatsOf(s.tsIdx), accent: s.accent, soundIdx: s.soundIdx };
       };
 
+      // Mark the lesson complete and show the scored feedback (real or simulated).
+      const applyFeedback = (fb: Feedback): void => {
+        const s = get();
+        const l = s.lesson;
+        set({
+          recState: 'done',
+          feedback: fb,
+          done: l ? { ...s.done, [`${l.course}|${l.idx}`]: true } : s.done,
+        });
+        s.showToast('AI feedback ready — lesson complete');
+      };
+
+      // Offline fallback: synthesise plausible feedback from the skill's bank.
+      const simulateFeedback = (): void => {
+        clearTimeout(fbTimer);
+        fbTimer = setTimeout(() => {
+          const l = get().lesson;
+          const bank = (l?.skill && FEEDBACK_BANKS[l.skill]) || FEEDBACK_BANKS.reading;
+          const pick = (arr: string[], n: number) => arr.slice().sort(() => Math.random() - 0.5).slice(0, n);
+          applyFeedback({
+            score: Math.floor(72 + Math.random() * 22),
+            strengths: pick(bank.strengths, 2),
+            work: pick(bank.work, 2),
+          });
+        }, 1800);
+      };
+
       return {
         device: 'phone', tab: 'home', sub: null, hv: 'a', toast: null,
         plan: 'Subscriber',
@@ -190,7 +220,7 @@ export const useStore = create<StoreState>()(
 
         // nav
         setDevice: (device) => set({ device }),
-        setHv: (hv) => set({ hv, tab: 'home', sub: null }),
+        setHv: (hv) => set({ hv }),
         goTab: (tab) => set({ tab, sub: null }),
         goToolH: (prTool) => set({ tab: 'practice', sub: null, prTool }),
         back: () => set({ sub: null }),
@@ -343,30 +373,30 @@ export const useStore = create<StoreState>()(
           clearInterval(recTimer);
           set({ recState: 'recording', recSecs: 0, feedback: null });
           recTimer = setInterval(() => set((s) => ({ recSecs: s.recSecs + 1 })), 1000);
+          // Real mic capture when a backend is configured; otherwise simulate.
+          usingRealRecorder = false;
+          if (apiEnabled() && recordingSupported()) {
+            startMicRecording().then(() => { usingRealRecorder = true; }).catch(() => { usingRealRecorder = false; });
+          }
         },
         stopRecording: () => {
           clearInterval(recTimer);
           set({ recState: 'analyzing' });
-          fbTimer = setTimeout(() => {
-            const s = get();
-            const l = s.lesson;
-            const bank = (l?.skill && FEEDBACK_BANKS[l.skill]) || FEEDBACK_BANKS.reading;
-            const pick = (arr: string[], n: number) => arr.slice().sort(() => Math.random() - 0.5).slice(0, n);
-            set({
-              recState: 'done',
-              feedback: {
-                score: Math.floor(72 + Math.random() * 22),
-                strengths: pick(bank.strengths, 2),
-                work: pick(bank.work, 2),
-              },
-              done: l ? { ...s.done, [`${l.course}|${l.idx}`]: true } : s.done,
-            });
-            s.showToast('AI feedback ready — lesson complete');
-          }, 1800);
+          if (usingRealRecorder) {
+            const skill = get().lesson?.skill ?? 'reading';
+            stopMicRecording()
+              .then((blob) => runFeedbackAnalysis(blob, skill))
+              .then((fb) => applyFeedback(fb))
+              .catch(() => simulateFeedback());   // network/mic failure → graceful fallback
+          } else {
+            simulateFeedback();
+          }
         },
         retryRecording: () => {
           clearInterval(recTimer);
           clearTimeout(fbTimer);
+          cancelMicRecording();
+          usingRealRecorder = false;
           set({ recState: 'idle', recSecs: 0, feedback: null });
         },
 
