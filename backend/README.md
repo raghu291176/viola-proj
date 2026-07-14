@@ -66,6 +66,30 @@ python -m worker.scripts.local_analyze /path/to/recording.wav --skill bow
 python -m worker.scripts.local_analyze /path/to/song.wav --transcribe
 ```
 
+## Benchmark MIR accuracy
+
+A pro-grade tool publishes its accuracy. `worker/scripts/benchmark.py` measures our
+pitch + note detection against ground truth with the standard `mir_eval` metrics.
+
+```bash
+cd worker && . .venv/bin/activate && pip install mir_eval
+# Self-test on synthetic audio (known f0/notes) — validates the harness, gives a baseline:
+python -m scripts.benchmark
+# Real corpus — URMP violin/viola/cello stems (download separately; CC-BY-NC → internal use):
+python -m scripts.benchmark --urmp /path/to/URMP/Dataset
+# Compare detectors as we add them (pyin today → CREPE/PESTO):
+python -m scripts.benchmark --detector pyin
+```
+
+Reports Raw Pitch/Chroma Accuracy, voicing recall/false-alarm, **mean/median |cents
+error|** (bounds intonation-feedback precision), and note/onset P/R/F (false-positive
+rate = 1 − precision).
+
+> **Honest caveat:** the synthetic self-test is clean audio → optimistic (RPA ≈ 0.96,
+> median cents ≈ 3.5). Real recordings (bow noise, room, string crossings, double
+> stops) score lower — that's what the `--urmp` path is for. Run it on URMP before
+> quoting an accuracy number externally.
+
 ## Run the API + DB locally
 
 ```bash
