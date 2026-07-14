@@ -20,8 +20,14 @@ def _account_url(account: str) -> str:
     return f"https://{account}.blob.core.windows.net"
 
 
-def mint_upload_sas(user_id: str, recording_id: str) -> dict[str, str]:
+_ALLOWED_EXT = {"wav", "webm", "mp3", "m4a", "png", "jpg", "jpeg", "pdf"}
+
+
+def mint_upload_sas(user_id: str, recording_id: str, ext: str = "wav") -> dict[str, str]:
     cfg = settings()
+    ext = ext.lower().lstrip(".")
+    if ext not in _ALLOWED_EXT:
+        ext = "wav"
     account_url = _account_url(cfg.storage_account)
     svc = BlobServiceClient(account_url, credential=DefaultAzureCredential())
 
@@ -29,7 +35,7 @@ def mint_upload_sas(user_id: str, recording_id: str) -> dict[str, str]:
     expiry = start + _SAS_TTL
     udk = svc.get_user_delegation_key(key_start_time=start, key_expiry_time=expiry)
 
-    blob_name = f"{user_id}/{recording_id}.wav"
+    blob_name = f"{user_id}/{recording_id}.{ext}"
     sas = generate_blob_sas(
         account_name=cfg.storage_account,
         container_name=cfg.storage_container,

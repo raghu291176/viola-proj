@@ -6,7 +6,7 @@ import { TS, NOTES, KEYS, BILLING_ENABLED } from '../lib/constants';
 import { FEEDBACK_BANKS } from '../lib/data';
 import { metronome, drone, tuner, setReferenceA, type MetParams } from '../lib/audio';
 import {
-  apiEnabled, runFeedbackAnalysis, uploadRecording, submitAssessment,
+  apiEnabled, runFeedbackAnalysis, uploadRecording, submitAssessment, uploadSheetScan,
   authToken, setAuthToken, login as apiLogin, register as apiRegister,
 } from '../lib/api';
 import { startMicRecording, stopMicRecording, cancelMicRecording, recordingSupported } from '../lib/recorder';
@@ -217,6 +217,10 @@ export interface StoreState {
   addStudent: (name: string, level: string) => void;
   removeStudent: (name: string) => void;
   assessStudent: (name: string, level: string) => void;
+
+  // ── sheet scan (browser camera → OMR) ──
+  openScan: () => void;
+  submitScan: (blob: Blob) => void;
 }
 
 export const useStore = create<StoreState>()(
@@ -576,6 +580,20 @@ export const useStore = create<StoreState>()(
           tab: 'assess', sub: null,
           assess: { ...s.assess, student: name, level },
         })),
+
+        // sheet scan → OMR
+        openScan: () => set({ sub: 'scan' }),
+        submitScan: (blob) => {
+          const s = get();
+          if (apiEnabled()) {
+            uploadSheetScan(blob)
+              .then(() => { s.showToast('Scanning sheet music — it will appear in your library shortly'); set({ sub: null }); })
+              .catch(() => s.showToast('Upload failed — please try again'));
+          } else {
+            s.showToast('Sheet captured — connect a backend to convert it to notation');
+            set({ sub: null });
+          }
+        },
       };
     },
     {

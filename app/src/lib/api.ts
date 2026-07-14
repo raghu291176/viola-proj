@@ -55,11 +55,11 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 interface UploadUri { recording_id: string; upload_url: string; blob_url: string; expires_at: string }
-type Kind = 'feedback' | 'transcription';
+type Kind = 'feedback' | 'transcription' | 'omr';
 
-async function requestUploadUri(kind: Kind, skill: string): Promise<UploadUri> {
+async function requestUploadUri(kind: Kind, skill: string, ext = 'wav'): Promise<UploadUri> {
   return req<UploadUri>('/api/v1/recordings/upload-uri', {
-    method: 'POST', body: JSON.stringify({ kind, skill }),
+    method: 'POST', body: JSON.stringify({ kind, skill, ext }),
   });
 }
 
@@ -144,4 +144,15 @@ export async function uploadRecording(blob: Blob, skill: string, level: string):
 /** Submit a teacher assessment (the labeled training record). */
 export async function submitAssessment(body: Record<string, unknown>): Promise<void> {
   await req('/api/v1/assessments', { method: 'POST', body: JSON.stringify(body) });
+}
+
+/** Upload a photo/scan of sheet music for OMR (image → MusicXML). Returns the recording id. */
+export async function uploadSheetScan(blob: Blob): Promise<string> {
+  const ext = blob.type.includes('png') ? 'png' : 'jpg';
+  const up = await requestUploadUri('omr', 'reading', ext);
+  await putBlob(up.upload_url, blob);
+  await req(`/api/v1/recordings/${up.recording_id}/analyze`, {
+    method: 'POST', body: JSON.stringify({ blob_url: up.blob_url, kind: 'omr', skill: 'reading' }),
+  });
+  return up.recording_id;
 }

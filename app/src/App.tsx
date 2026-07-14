@@ -18,6 +18,7 @@ import { Transcription } from './screens/Transcription';
 import { Profile } from './screens/Profile';
 import { Assess } from './screens/Assess';
 import { Students } from './screens/Students';
+import { Scan } from './screens/Scan';
 
 function ActiveScreen() {
   const tab = useStore((s) => s.tab);
@@ -36,6 +37,7 @@ function ActiveScreen() {
     case 'course': return <Course />;
     case 'lesson': return <Lesson />;
     case 'assess': return <Assess />;
+    case 'scan': return <Scan />;
     default: return <Home />;
   }
 }

@@ -28,6 +28,7 @@ Kind = Literal["feedback", "transcription", "omr"]
 class UploadUriRequest(BaseModel):
     kind: Kind = "feedback"
     skill: str = "reading"
+    ext: str = "wav"                 # blob extension — image/pdf for OMR, wav/webm for audio
     lesson_id: str | None = None
 
 
@@ -49,7 +50,7 @@ async def upload_uri(body: UploadUriRequest, user: str = Depends(current_user)) 
                VALUES ($1, $2, $3, $4, $5, 'pending')""",
             recording_id, user, body.kind, body.skill, body.lesson_id,
         )
-    return mint_upload_sas(user, recording_id)
+    return mint_upload_sas(user, recording_id, body.ext)
 
 
 @router.post("/{recording_id}/analyze", status_code=status.HTTP_202_ACCEPTED)

@@ -9,7 +9,7 @@ export function Music() {
   const openPro = useStore((s) => s.openPro);
   const openTrans = useStore((s) => s.openTrans);
   const openPiece = useStore((s) => s.openPiece);
-  const showToast = useStore((s) => s.showToast);
+  const openScan = useStore((s) => s.openScan);
 
   const musicList = PIECES.filter((p) => p.t.toLowerCase().includes(q.toLowerCase()));
 
@@ -35,9 +35,9 @@ export function Music() {
           <div className="f1"><div className="rtitle">AI transcription</div><div className="rsub">Subscribers · turn any song or audio into sheet music</div></div>
           <Icon name="chevronRight" className="ic ic16 chev" />
         </button>
-        <button className="rowbtn" onClick={() => showToast('Opens the file picker to import a PDF or scan')}>
+        <button className="rowbtn" onClick={openScan}>
           <Icon name="upload" />
-          <div className="f1"><div className="rtitle">Upload your own</div><div className="rsub">Import PDF or scans</div></div>
+          <div className="f1"><div className="rtitle">Scan sheet music</div><div className="rsub">Photograph a page — turns into notation</div></div>
           <Icon name="chevronRight" className="ic ic16 chev" />
         </button>
 

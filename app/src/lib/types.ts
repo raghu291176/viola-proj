@@ -4,7 +4,7 @@ export type Device = 'phone' | 'ipad';
 export type Tab = 'home' | 'music' | 'practice' | 'learn' | 'profile' | 'students' | 'assess';
 export type Role = 'student' | 'teacher' | 'admin';
 export interface Student { name: string; level: string }
-export type Sub = null | 'sheet' | 'trans' | 'browse' | 'course' | 'lesson' | 'assess';
+export type Sub = null | 'sheet' | 'trans' | 'browse' | 'course' | 'lesson' | 'assess' | 'scan';
 export type HomeVariant = 'a' | 'b' | 'c';
 export type Plan = 'Free plan' | 'Subscriber';
 export type PracticeTool = 'met' | 'tun' | 'dro' | 'sr';
